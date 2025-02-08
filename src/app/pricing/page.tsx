@@ -3,7 +3,7 @@ import { ArrowRight } from "lucide-react"
 import Link from "next/link"
 import { Header } from "@/components/ui/header"
 import { Card } from "@/components/ui/card"
-import { GlowButton } from "@/components/ui/glow-button"
+import { BorderGlowButton } from "@/components/ui/border-glow-button"
 import { SharedFooter } from "@/components/ui/shared-footer"
 import { cn } from "@/lib/utils"
 
@@ -15,15 +15,19 @@ interface PricingTier {
   highlight?: boolean
   aiOps: string
   history: string
+  glowColor?: string
+  borderGlowColor?: string
 }
 
 const tiers: PricingTier[] = [
   {
-    name: "solo",
+    name: "rabbit",
     price: "$2",
     description: "personal messaging with ambient intelligence.",
     aiOps: "100 AI operations per day",
     history: "30-day message history",
+    glowColor: "rgba(255, 255, 255, 0.1)",
+    borderGlowColor: "rgba(255, 255, 255, 0.2)",
     features: [
       "unlimited 1:1 conversations",
       "basic thread linking & context",
@@ -33,14 +37,16 @@ const tiers: PricingTier[] = [
     ]
   },
   {
-    name: "plus",
+    name: "costar",
     price: "$10",
     description: "enhanced intelligence for power users.",
     highlight: true,
     aiOps: "1000 AI operations per day",
     history: "unlimited message history",
+    glowColor: "rgba(96, 165, 250, 0.2)",
+    borderGlowColor: "rgba(96, 165, 250, 0.3)",
     features: [
-      "everything in solo, plus:",
+      "everything in rabbit, plus:",
       "advanced semantic search",
       "voice messages & transcription",
       "advanced thread linking",
@@ -51,13 +57,15 @@ const tiers: PricingTier[] = [
     ]
   },
   {
-    name: "space",
+    name: "cursor",
     price: "$20",
     description: "private spaces with shared intelligence.",
     aiOps: "priority AI access",
     history: "unlimited message history",
+    glowColor: "rgba(167, 139, 250, 0.2)",
+    borderGlowColor: "rgba(167, 139, 250, 0.3)",
     features: [
-      "everything in plus, plus:",
+      "everything in costar, plus:",
       "private spaces (up to 12 people)",
       "shared context building",
       "group semantic search",
@@ -109,7 +117,7 @@ export default function PricingPage() {
           </h1>
           <div className="flex flex-col items-center gap-3">
             <p className="text-xl text-white/60 font-extralight">
-              start with a 14-day trial of plus features
+              start with a 14-day trial of costar features
             </p>
             <span className="text-sm text-white/40 font-extralight tracking-wide">
               no credit card required
@@ -173,18 +181,22 @@ export default function PricingPage() {
                   </ul>
 
                   {/* CTA */}
-                  <Link 
-                    href="/signup"
+                  <BorderGlowButton
+                    asChild
+                    glowColor={tier.glowColor}
+                    borderGlowColor={tier.borderGlowColor}
                     className={cn(
-                      "flex items-center justify-center gap-2 w-full py-2 px-4 rounded transition-colors text-sm font-light mt-auto",
+                      "w-full py-2 px-4 mt-auto",
                       tier.highlight
                         ? "bg-[var(--blue-primary)] hover:bg-[var(--blue-primary)]/90 text-white"
                         : "bg-white/5 hover:bg-white/10 text-white/80"
                     )}
                   >
-                    start trial
-                    <ArrowRight className="w-3.5 h-3.5" />
-                  </Link>
+                    <Link href="/signup" className="flex items-center justify-center gap-2 text-sm font-light">
+                      start trial
+                      <ArrowRight className="w-3.5 h-3.5" />
+                    </Link>
+                  </BorderGlowButton>
                 </div>
               </Card>
             ))}
