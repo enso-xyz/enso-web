@@ -4,6 +4,7 @@ import Link from "next/link"
 import { Header } from "@/components/ui/header"
 import { Card } from "@/components/ui/card"
 import { GlowButton } from "@/components/ui/glow-button"
+import { SharedFooter } from "@/components/ui/shared-footer"
 import { cn } from "@/lib/utils"
 
 interface PricingTier {
@@ -209,6 +210,8 @@ export default function PricingPage() {
           </div>
         </div>
       </main>
+
+      <SharedFooter />
     </div>
   )
 } 
