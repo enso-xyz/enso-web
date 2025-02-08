@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils"
 import type { PopoverProps } from '@radix-ui/react-popover'
 
 const Popover = React.forwardRef<HTMLDivElement, PopoverProps>(
-  (props, ref) => <PopoverPrimitive.Root {...props} ref={ref} />
+  (props, _ref) => <PopoverPrimitive.Root {...props} />
 )
 Popover.displayName = PopoverPrimitive.Root.displayName
 

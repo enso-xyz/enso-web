@@ -1,0 +1,6 @@
+ed7f69c refs/remotes/origin/main@{0}: update by push
+ed7f69c refs/heads/main@{0}: commit: trigger
+ed7f69c HEAD@{0}: commit: trigger
+e475397 refs/remotes/origin/main@{1}: update by push
+e475397 refs/heads/main@{1}: commit (initial): Initial commit: Working Next.js build with basic setup
+e475397 HEAD@{1}: commit (initial): Initial commit: Working Next.js build with basic setup
