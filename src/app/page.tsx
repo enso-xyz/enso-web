@@ -14,6 +14,7 @@ import { ReferencePreview } from "@/components/chat/references/ReferencePreview"
 import { motion } from "framer-motion"
 import { ChatHeader } from "@/components/chat/ChatHeader"
 import { SharedFooter } from "@/components/ui/shared-footer"
+import { CONTEXT_TYPES, CONTEXT_PREVIEWS } from "@/lib/constants/demo-content"
 
 export default function RootPage() {
   const router = useRouter()
@@ -59,15 +60,37 @@ export default function RootPage() {
     return null
   }
 
-  // Demo messages showcasing our core features
+  // Update the demo messages to show a more relatable group chat
   const demoMessages = [{
-      id: "1",
+    id: "1",
     chat_id: "demo",
-    sender_id: "system",
-    content: "Welcome to Enso! This is a demo conversation.",
-      created_at: new Date().toISOString(),
-    sender: { email: "demo@enso.chat" }
-  }]
+    sender_id: "user_1",
+    content: "omg tickets secured for weekend 1!! 🎡✨",
+    created_at: new Date().toISOString(),
+    sender: { email: "kai@enso.chat" }
+  }, {
+    id: "2",
+    chat_id: "demo",
+    sender_id: "user_2",
+    content: "LETS GOOO!! check the >festival-memories from last year, we need to recreate that sunset pic at the ferris wheel 🌅",
+    created_at: new Date().toISOString(),
+    sender: { email: "emma@enso.chat" }
+  }, {
+    id: "3",
+    chat_id: "demo",
+    sender_id: "user_3",
+    content: "@mia did you see frank ocean is headlining?? 😭 i'm literally crying rn",
+    created_at: new Date().toISOString(),
+    sender: { email: "alex@enso.chat" }
+  }, {
+    id: "4",
+    chat_id: "demo",
+    sender_id: "user_1",
+    content: "adding everything to #festival-fits!! need to start planning the looks asap 👗",
+    created_at: new Date().toISOString(),
+    sender: { email: "mia@enso.chat" }
+  }
+]
 
   return (
     <>
@@ -171,47 +194,49 @@ export default function RootPage() {
 
                   {/* References */}
                   <div className="flex flex-wrap gap-5">
-                    <ReferencePreview 
-                      reference={{
-                        id: "1",
-                        type: "user",
-                        title: "Emma Chen",
-                        content: "User profile",
-                        metadata: { email: "emma@enso.chat", full_name: "Emma Chen" },
-                        similarity: 1
-                      }}
-                      className="scale-110"
-                      demo={true}
-                    />
-                    <ReferencePreview 
-                      reference={{
-                        id: "2",
-                        type: "thread",
-                        title: "coachella-2024",
-                        content: "festival photos and memories",
-                        metadata: { title: "coachella-2024" },
-                        similarity: 1
-                      }}
-                      className="scale-110"
-                      demo={true}
-                    />
-                    <ReferencePreview 
-                      reference={{
-                        id: "3",
-                        type: "thread",
-                        title: "festival-memories",
-                        content: "summer festival highlights",
-                        metadata: { title: "festival-memories" },
-                        similarity: 1
-                      }}
-                      className="scale-110"
-                      demo={true}
-                    />
+                    {CONTEXT_TYPES.map((type) => (
+                      <ReferencePreview 
+                        key={type}
+                        reference={{
+                          id: type,
+                          type: type,
+                          ...CONTEXT_PREVIEWS.social[type],
+                          content: CONTEXT_PREVIEWS.social[type].preview,
+                          similarity: 1
+                        }}
+                        className="scale-110"
+                        demo={true}
+                      />
+                    ))}
                   </div>
 
                   {/* Input */}
                   <div className="pt-6">
                     <MessageInput chatId="demo" className="text-lg" demo={true} />
+                  </div>
+
+                  {/* Context tags */}
+                  <div className="flex gap-2">
+                    <button className="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-sm text-white/60">
+                      @ mention
+                    </button>
+                    <button className="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-sm text-white/60">
+                      # topic
+                    </button>
+                    <button className="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-sm text-white/60">
+                      # tag
+                    </button>
+                    <button className="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-sm text-white/60">
+                      📄 file
+                    </button>
+                    <a 
+                      href="https://coachella.com" 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-sm text-white/60 flex items-center gap-2 hover:text-white/80 transition-colors"
+                    >
+                      🔗 coachella.com
+                    </a>
                   </div>
                 </div>
               </div>

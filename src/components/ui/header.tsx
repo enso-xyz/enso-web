@@ -18,7 +18,10 @@ export function Header({ className }: HeaderProps) {
     <header className={cn(
       "fixed top-0 left-0 right-0 z-50",
       "h-24 flex items-center",
-      "bg-[var(--header-fill)]",
+      "border-b border-white/[0.08]",
+      "bg-black/[0.65] backdrop-blur-[12px] backdrop-saturate-[1.8]",
+      "supports-[backdrop-filter]:bg-black/[0.65]",
+      "supports-[backdrop-filter]:backdrop-blur-[12px]",
       className
     )}>
       {/* Content container with max width */}

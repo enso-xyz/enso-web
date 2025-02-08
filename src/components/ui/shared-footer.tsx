@@ -30,7 +30,7 @@ export function SharedFooter({ className, showNewsletter = true }: SharedFooterP
   return (
     <footer className={cn("border-t border-white/5 bg-black/20 backdrop-blur-sm", className)}>
       {showNewsletter && (
-        <div className="w-full max-w-[1400px] mx-auto px-8 md:px-12 lg:px-16 py-8 flex flex-col md:flex-row items-center justify-between gap-12 border-t border-white/10">
+        <div className="w-full max-w-[1400px] mx-auto px-8 md:px-12 lg:px-16 py-8 flex flex-col md:flex-row items-center justify-between gap-12 border-t border-b border-white/5">
           {/* Newsletter */}
           <div className="flex-1 w-full">
             <h3 className="text-2xl font-light text-white/60 mb-4">join our newsletter</h3>
@@ -136,13 +136,15 @@ export function SharedFooter({ className, showNewsletter = true }: SharedFooterP
               </li>
             </ul>
           </div>
-        </div>
 
-        {/* Copyright */}
-        <div className="mt-16 pt-8 border-t border-white/5">
+          <div className="flex flex-col gap-2">
           <p className="text-sm font-extralight text-white/40">
-            © 2024 enso. all rights reserved.
+            © 2025 enso.
           </p>
+          <p className="text-sm font-extralight text-white/40">
+            all rights reserved.
+          </p>
+          </div>
         </div>
       </div>
     </footer>

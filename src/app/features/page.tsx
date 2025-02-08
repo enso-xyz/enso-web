@@ -199,26 +199,36 @@ export default function FeaturesPage() {
         </div>
       </section>
 
-      {/* Story selector */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.6 }}
-        className="flex items-center justify-center gap-0 py-8 mb-16"
-      >
-        {STORY_TYPES.map((story) => (
-          <button
-            key={story.value}
-            onClick={() => setActiveStory(story.value)}
-            className={cn(
-              "px-3 py-1 text-sm font-light rounded-lg transition-colors whitespace-nowrap",
-              story.value === activeStory ? "text-white/90" : "text-white/40 hover:text-white/60"
-            )}
-          >
-            {story.label}
-          </button>
-        ))}
-      </motion.div>
+      {/* Sticky story selector with glass effect */}
+      <div className="sticky top-24 z-40 mb-16">
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.6 }}
+          className={cn(
+            "py-4 px-6 backdrop-blur-[12px] backdrop-saturate-[1.8]",
+            "bg-black/[0.65] rounded-full",
+            "supports-[backdrop-filter]:bg-black/[0.65]",
+            "supports-[backdrop-filter]:backdrop-blur-[12px]",
+            "inline-block left-1/2 -translate-x-1/2 relative"
+          )}
+        >
+          <div className="flex items-center justify-center gap-0">
+            {STORY_TYPES.map((story) => (
+              <button
+                key={story.value}
+                onClick={() => setActiveStory(story.value)}
+                className={cn(
+                  "px-3 py-1 text-sm font-light rounded-lg transition-colors whitespace-nowrap",
+                  story.value === activeStory ? "text-white/90" : "text-white/40 hover:text-white/60"
+                )}
+              >
+                {story.label}
+              </button>
+            ))}
+          </div>
+        </motion.div>
+      </div>
 
       {/* Features */}
       <div className="max-w-6xl mx-auto px-8">
@@ -227,10 +237,16 @@ export default function FeaturesPage() {
           animate={{ opacity: 1 }}
           transition={{ duration: 0.6 }}
         >
-          {features.map((feature) => (
+          {features.map((feature, index) => (
             <section
               key={`${feature.title}-${activeStory}`}
-              className="min-h-[calc(100vh-8rem)] flex items-center"
+              className={cn(
+                "min-h-[calc(100vh-8rem)] flex items-center",
+                // Add scroll margin to the last section to push up the sticky selector
+                index === features.length - 1 ? "scroll-margin-top-[96px]" : ""
+              )}
+              // Add id to last section for scroll behavior
+              id={index === features.length - 1 ? "last-feature" : undefined}
             >
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-24 w-full">
                 {/* Feature copy */}

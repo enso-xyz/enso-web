@@ -1,4 +1,6 @@
-import React from "react"
+"use client"
+
+import React, { useState } from "react"
 import { ArrowRight } from "lucide-react"
 import Link from "next/link"
 import { Header } from "@/components/ui/header"
@@ -6,6 +8,18 @@ import { Card } from "@/components/ui/card"
 import { BorderGlowButton } from "@/components/ui/border-glow-button"
 import { SharedFooter } from "@/components/ui/shared-footer"
 import { cn } from "@/lib/utils"
+import { motion } from "framer-motion"
+import { LogoCard } from "@/components/ui/logo-card"
+
+// Define gradient colors
+const chatGradients = [
+  'from-[#178bf1] to-[#4c6ef5]',  // Blue gradient
+  'from-[#9333ea] to-[#7c3aed]',  // Purple gradient
+  'from-[#ec4899] to-[#d946ef]',  // Pink gradient
+  'from-[#2dd4bf] to-[#14b8a6]',  // Teal gradient
+  'from-[#f43f5e] to-[#e11d48]',  // Rose gradient
+  'from-[#8b5cf6] to-[#6d28d9]'   // Violet gradient
+]
 
 interface PricingTier {
   name: string
@@ -21,7 +35,7 @@ interface PricingTier {
 
 const tiers: PricingTier[] = [
   {
-    name: "rabbit",
+    name: "essence",
     price: "$2",
     description: "personal messaging with ambient intelligence.",
     aiOps: "100 AI operations per day",
@@ -37,7 +51,7 @@ const tiers: PricingTier[] = [
     ]
   },
   {
-    name: "costar",
+    name: "flow",
     price: "$10",
     description: "enhanced intelligence for power users.",
     highlight: true,
@@ -46,7 +60,7 @@ const tiers: PricingTier[] = [
     glowColor: "rgba(96, 165, 250, 0.2)",
     borderGlowColor: "rgba(96, 165, 250, 0.3)",
     features: [
-      "everything in rabbit, plus:",
+      "everything in essence, plus:",
       "advanced semantic search",
       "voice messages & transcription",
       "advanced thread linking",
@@ -57,7 +71,7 @@ const tiers: PricingTier[] = [
     ]
   },
   {
-    name: "cursor",
+    name: "aether",
     price: "$20",
     description: "private spaces with shared intelligence.",
     aiOps: "priority AI access",
@@ -65,7 +79,7 @@ const tiers: PricingTier[] = [
     glowColor: "rgba(167, 139, 250, 0.2)",
     borderGlowColor: "rgba(167, 139, 250, 0.3)",
     features: [
-      "everything in costar, plus:",
+      "everything in flow, plus:",
       "private spaces (up to 12 people)",
       "shared context building",
       "group semantic search",
@@ -103,6 +117,15 @@ const faqs = [
 ]
 
 export default function PricingPage() {
+  const [position, setPosition] = useState({ x: 50, y: 50 })
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect()
+    const x = ((e.clientX - rect.left) / rect.width) * 100
+    const y = ((e.clientY - rect.top) / rect.height) * 100
+    setPosition({ x, y })
+  }
+
   return (
     <div className="min-h-screen bg-[var(--black-pure)] text-white">
       <Header />
@@ -117,7 +140,7 @@ export default function PricingPage() {
           </h1>
           <div className="flex flex-col items-center gap-3">
             <p className="text-xl text-white/60 font-extralight">
-              start with a 14-day trial of costar features
+              start with a 14-day trial of flow features
             </p>
             <span className="text-sm text-white/40 font-extralight tracking-wide">
               no credit card required
@@ -131,14 +154,31 @@ export default function PricingPage() {
             {tiers.map((tier) => (
               <Card
                 key={tier.name}
+                onMouseMove={tier.highlight ? handleMouseMove : undefined}
                 className={cn(
                   "relative border rounded-lg overflow-hidden",
                   tier.highlight
-                    ? "border-[var(--blue-primary)] bg-[var(--blue-primary)]/[0.03]"
+                    ? "border-[var(--blue-primary)]"
                     : "border-white/10 hover:border-white/20 bg-white/[0.02]"
                 )}
               >
-                <div className="p-6 flex flex-col h-full">
+                {tier.highlight && (
+                  <motion.div
+                    className="absolute inset-0 pointer-events-none"
+                    animate={{
+                      opacity: 1,
+                    }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <div
+                      className="absolute inset-0"
+                      style={{
+                        background: `radial-gradient(${800}px circle at ${position.x}% ${position.y}%, rgba(96, 165, 250, 0.03), transparent 40%)`,
+                      }}
+                    />
+                  </motion.div>
+                )}
+                <div className="p-6 flex flex-col h-full relative z-10">
                   {/* Header */}
                   <div className="mb-6">
                     <div className="flex items-baseline justify-between mb-2">
@@ -183,18 +223,23 @@ export default function PricingPage() {
                   {/* CTA */}
                   <BorderGlowButton
                     asChild
-                    glowColor={tier.glowColor}
-                    borderGlowColor={tier.borderGlowColor}
+                    glowColor={tier.highlight 
+                      ? "rgba(96, 165, 250, 0.15)"
+                      : tier.glowColor}
+                    borderGlowColor={tier.highlight
+                      ? "rgba(96, 165, 250, 0.3)"
+                      : tier.borderGlowColor}
                     className={cn(
                       "w-full py-2 px-4 mt-auto",
+                      "border border-white/10 hover:border-white/20",
                       tier.highlight
-                        ? "bg-[var(--blue-primary)] hover:bg-[var(--blue-primary)]/90 text-white"
-                        : "bg-white/5 hover:bg-white/10 text-white/80"
+                        ? "bg-[var(--blue-primary)]/10 hover:bg-[var(--blue-primary)]/20 text-white/90"
+                        : "text-white/60 hover:text-white/80"
                     )}
                   >
-                    <Link href="/signup" className="flex items-center justify-center gap-2 text-sm font-light">
+                    <Link href="/signup" className="flex items-center justify-center gap-2 text-sm font-light group">
                       start trial
-                      <ArrowRight className="w-3.5 h-3.5" />
+                      <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
                     </Link>
                   </BorderGlowButton>
                 </div>
@@ -209,17 +254,93 @@ export default function PricingPage() {
             frequently asked questions
           </h2>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-8 max-w-4xl mx-auto">
-            {faqs.map((faq) => (
-              <div key={faq.question} className="group">
-                <h3 className="text-base font-light mb-2 group-hover:text-white/80 transition-colors">
-                  {faq.question}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-6xl mx-auto">
+            {/* First Row */}
+            <Card
+              key={faqs[0].question}
+              className="relative border rounded-lg overflow-hidden border-white/10 hover:border-white/20 bg-white/[0.02] md:col-span-2"
+            >
+              <div className="p-6 h-full">
+                <h3 className="text-base font-light mb-3 text-white/80">
+                  {faqs[0].question}
                 </h3>
                 <p className="text-sm text-white/60 font-extralight leading-relaxed">
-                  {faq.answer}
+                  {faqs[0].answer}
                 </p>
               </div>
-            ))}
+            </Card>
+
+            <Card
+              key={faqs[1].question}
+              className="relative border rounded-lg overflow-hidden border-white/10 hover:border-white/20 bg-white/[0.02] md:row-span-2"
+            >
+              <div className="p-6 h-full">
+                <h3 className="text-base font-light mb-3 text-white/80">
+                  {faqs[1].question}
+                </h3>
+                <p className="text-sm text-white/60 font-extralight leading-relaxed">
+                  {faqs[1].answer}
+                </p>
+              </div>
+            </Card>
+
+            {/* First Decorative Card */}
+            <Card 
+              className="relative group border rounded-lg overflow-hidden border-white/10 aspect-[3/3] hover:border-white/20 transition-colors duration-300"
+            >
+              <LogoCard className="absolute inset-0" />
+            </Card>
+
+            <Card
+              key={faqs[2].question}
+              className="relative border rounded-lg overflow-hidden border-white/10 hover:border-white/20 bg-white/[0.02]"
+            >
+              <div className="p-6 h-full">
+                <h3 className="text-base font-light mb-3 text-white/80">
+                  {faqs[2].question}
+                </h3>
+                <p className="text-sm text-white/60 font-extralight leading-relaxed">
+                  {faqs[2].answer}
+                </p>
+              </div>
+            </Card>
+
+            {/* Third Row */}
+            <Card
+              key={faqs[3].question}
+              className="relative border rounded-lg overflow-hidden border-white/10 hover:border-white/20 bg-white/[0.02] md:col-span-2"
+            >
+              <div className="p-6 h-full">
+                <h3 className="text-base font-light mb-3 text-white/80">
+                  {faqs[3].question}
+                </h3>
+                <p className="text-sm text-white/60 font-extralight leading-relaxed">
+                  {faqs[3].answer}
+                </p>
+              </div>
+            </Card>
+
+            {/* Second Decorative Card */}
+            <Card 
+              className="relative group border rounded-lg overflow-hidden border-white/10 aspect-[3/4] hover:border-white/20 transition-colors duration-300"
+            >
+              <LogoCard className="absolute inset-0" />
+            </Card>
+
+            {/* Fourth Row */}
+            <Card
+              key={faqs[4].question}
+              className="relative border rounded-lg overflow-hidden border-white/10 hover:border-white/20 bg-white/[0.02] md:col-span-3"
+            >
+              <div className="p-6 h-full">
+                <h3 className="text-base font-light mb-3 text-white/80">
+                  {faqs[4].question}
+                </h3>
+                <p className="text-sm text-white/60 font-extralight leading-relaxed">
+                  {faqs[4].answer}
+                </p>
+              </div>
+            </Card>
           </div>
         </div>
       </main>

@@ -314,3 +314,22 @@
     grid-template-columns: repeat(30, minmax(0, 1fr));
   }
 }
+
+/* Add these animations to your existing globals.css */
+@keyframes star-movement-bottom {
+  from {
+    transform: translateX(0%);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes star-movement-top {
+  from {
+    transform: translateX(0%);
+  }
+  to {
+    transform: translateX(50%);
+  }
+}

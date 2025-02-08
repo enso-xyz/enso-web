@@ -57,3 +57,9 @@
     @apply bg-background text-foreground;
   }
 }
+
+@layer utilities {
+  .scroll-margin-top-[96px] {
+    scroll-margin-top: 96px;
+  }
+}

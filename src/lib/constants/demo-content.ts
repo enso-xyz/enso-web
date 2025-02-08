@@ -20,27 +20,61 @@ export const CONTEXT_PREVIEWS = {
     user: {
       title: "Kai Chen",
       preview: "Music Curator · Festival Enthusiast",
-      metadata: { author: "kai@enso.chat", date: "Active now" }
+      metadata: { 
+        author: "kai@enso.chat",
+        date: "Active now",
+        avatar: "/avatars/kai.jpg",
+        status: "online",
+        bio: "living for the music 🎵"
+      }
     },
     thread: {
-      title: "Festival Memories",
-      preview: "Photo collection and highlights from Coachella 2024",
-      metadata: { author: "Started by Emma", date: "2 days ago" }
+      title: "festival-memories",
+      preview: "coachella 2023 photo dump & highlights",
+      metadata: { 
+        author: "Started by Emma",
+        date: "Last year",
+        participants: 5,
+        photos: 42,
+        lastActive: "2 hours ago",
+        pinned: true
+      }
     },
     topic: {
-      title: "sunset-vibes",
-      preview: "Curated collection of sunset moments and music",
-      metadata: { author: "15 contributors", date: "Active now" }
+      title: "festival-fits",
+      preview: "outfit planning & style ideas",
+      metadata: { 
+        author: "15 contributors",
+        date: "Active now",
+        posts: 128,
+        images: 56,
+        lastUpdate: "5 min ago",
+        trending: true
+      }
     },
     file: {
-      title: "festival-schedule.pdf",
-      preview: "Complete lineup and set times for all stages",
-      metadata: { size: "1.2 MB", date: "Updated today" }
+      title: "packing-list.pdf",
+      preview: "everything you need for the weekend",
+      metadata: { 
+        size: "1.2 MB",
+        date: "Updated today",
+        type: "PDF",
+        pages: 3,
+        author: "Emma",
+        downloads: 8
+      }
     },
     link: {
-      title: "Festival Map",
-      preview: "Interactive map of all stages and facilities",
-      metadata: { url: "map.festival.com", date: "Live updates" }
+      title: "Set Times",
+      preview: "Weekend 1 full schedule & map",
+      metadata: { 
+        url: "https://coachella.com/schedule",
+        date: "Live updates",
+        type: "Schedule",
+        source: "Coachella Official",
+        lastSync: "2 min ago",
+        external: true
+      }
     }
   },
   creator: {
