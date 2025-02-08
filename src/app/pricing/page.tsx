@@ -103,8 +103,9 @@ export default function PricingPage() {
       <main className="pt-32 pb-20">
         {/* Hero */}
         <div className="text-center mb-16">
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-light mb-4">
-            ambient intelligence for modern messaging
+          <h1 className="flex flex-col gap-2 text-4xl md:text-5xl lg:text-6xl font-light mb-4">
+            <span>ambient intelligence</span>
+            <span>for modern messaging</span>
           </h1>
           <div className="flex flex-col items-center gap-3">
             <p className="text-xl text-white/60 font-extralight">
@@ -129,7 +130,7 @@ export default function PricingPage() {
                     : "border-white/10 hover:border-white/20 bg-white/[0.02]"
                 )}
               >
-                <div className="p-6">
+                <div className="p-6 flex flex-col h-full">
                   {/* Header */}
                   <div className="mb-6">
                     <div className="flex items-baseline justify-between mb-2">
@@ -155,7 +156,7 @@ export default function PricingPage() {
                   </div>
 
                   {/* Features */}
-                  <ul className="space-y-2 mb-6">
+                  <ul className="space-y-2 mb-6 flex-grow">
                     {tier.features.map((feature, i) => (
                       <li 
                         key={feature}
@@ -175,7 +176,7 @@ export default function PricingPage() {
                   <Link 
                     href="/signup"
                     className={cn(
-                      "flex items-center justify-center gap-2 w-full py-2 px-4 rounded transition-colors text-sm font-light",
+                      "flex items-center justify-center gap-2 w-full py-2 px-4 rounded transition-colors text-sm font-light mt-auto",
                       tier.highlight
                         ? "bg-[var(--blue-primary)] hover:bg-[var(--blue-primary)]/90 text-white"
                         : "bg-white/5 hover:bg-white/10 text-white/80"
