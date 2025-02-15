@@ -315,8 +315,10 @@ export function ContextPanel({
                         <ContextPreview
                           type={item.type === 'message' ? 'thread' : (item.type as 'file' | 'topic')}
                           title={item.title}
-                          preview={item.preview}
-                          metadata={item.metadata}
+                          metadata={{ 
+                            description: item.preview,
+                            created_at: item.metadata.created_at 
+                          }}
                         />
                       </motion.div>
                     ))}
@@ -421,42 +423,30 @@ export function ContextPanel({
             >
               <ScrollArea className="w-full" orientation="horizontal">
                 <div className="flex gap-4 pb-4" style={{ width: 'max-content' }}>
-                  {activeFilter === 'topics' && topics.map((topic, i) => (
-                    <motion.div
+                  {activeFilter === 'topics' && topics.map((topic) => (
+                    <ContextPreview
                       key={topic.id}
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      transition={{ duration: 0.2, delay: i * 0.05 }}
-                    >
-                      <ContextPreview
-                        type="topic"
-                        title={topic.title}
-                        preview={`${topic.count} messages`}
-                        metadata={{
-                          relevance: topic.relevance
-                        }}
-                        onClick={() => onTopicClick?.(topic)}
-                      />
-                    </motion.div>
+                      type="topic"
+                      title={topic.title}
+                      metadata={{
+                        description: `${topic.count} messages`,
+                        relevance: topic.relevance
+                      }}
+                      onClick={() => onTopicClick?.(topic)}
+                    />
                   ))}
-                  {activeFilter === 'files' && files.map((file, i) => (
-                    <motion.div
+                  {activeFilter === 'files' && files.map((file) => (
+                    <ContextPreview
                       key={file.id}
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      transition={{ duration: 0.2, delay: i * 0.05 }}
-                    >
-                      <ContextPreview
-                        type="file"
-                        title={file.name}
-                        preview={file.type}
-                        metadata={{
-                          lastModified: file.lastModified,
-                          relevance: file.relevance
-                        }}
-                        onClick={() => onFileClick?.(file)}
-                      />
-                    </motion.div>
+                      type="file"
+                      title={file.name}
+                      metadata={{
+                        description: file.type,
+                        lastModified: file.lastModified,
+                        relevance: file.relevance
+                      }}
+                      onClick={() => onFileClick?.(file)}
+                    />
                   ))}
                 </div>
               </ScrollArea>

@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils"
 interface BorderGlowButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   children: React.ReactNode
   glowColor?: string
+  borderGlowColor?: string
   className?: string
   asChild?: boolean
 }
@@ -14,6 +15,7 @@ interface BorderGlowButtonProps extends React.ButtonHTMLAttributes<HTMLButtonEle
 export function BorderGlowButton({
   children,
   glowColor = "rgba(139, 92, 246, 0.25)",
+  borderGlowColor = "rgba(255, 255, 255, 0.2)",
   className,
   asChild,
   ...props

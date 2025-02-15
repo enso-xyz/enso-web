@@ -4,8 +4,7 @@ import React from "react"
 import { User, Hash, Link2, FileText, X } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { motion } from "framer-motion"
-
-export type ContextType = 'user' | 'thread' | 'topic' | 'file'
+import type { ContextType } from "@/types/ai/context"
 
 interface ContextTileProps {
   type: ContextType

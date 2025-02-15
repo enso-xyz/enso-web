@@ -174,7 +174,7 @@ export const selectRecentChats = createSelector(
 
 export const selectMessageReferences = createSelector(
   [selectContextState, (state: any, messageId: string) => messageId],
-  (context, messageId) => context.activeContexts.filter(ctx => ctx.messageId === messageId)
+  (context, messageId) => context.activeContexts.filter(ctx => ctx.id === messageId)
 )
 
 export const {

@@ -140,7 +140,7 @@ export default function RootPage() {
       </section>
 
       {/* Demo section with black background */}
-      <section className="bg-[var(--black-pure)] min-h-[90vh] flex flex-col -mt-24 border-t border-white/10">
+      <section className="bg-[var(--black-pure)] min-h-[70vh] flex flex-col -mt-32 border-t border-white/10">
         {/* Demo container */}
         <div className="flex-1 flex items-start justify-center pt-32 pb-4">
           <div className="w-full max-w-[1400px] mx-auto px-8 md:px-12 lg:px-16">
@@ -192,58 +192,8 @@ export default function RootPage() {
                     <MessageBubble key={message.id} message={message} className="text-lg" />
                   ))}
 
-                  {/* References */}
-                  <div className="flex flex-wrap gap-5">
-                    {CONTEXT_TYPES.map((type) => (
-                      <ReferencePreview 
-                        key={type}
-                        reference={{
-                          id: type,
-                          type: type,
-                          ...CONTEXT_PREVIEWS.social[type],
-                          content: CONTEXT_PREVIEWS.social[type].preview,
-                          similarity: 1
-                        }}
-                        className="scale-110"
-                        demo={true}
-                      />
-                    ))}
-                  </div>
-
-                  {/* Input */}
-                  <div className="pt-6">
-                    <MessageInput chatId="demo" className="text-lg" demo={true} />
-                  </div>
-
-                  {/* Context tags */}
-                  <div className="flex gap-2">
-                    <button className="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-sm text-white/60">
-                      @ mention
-                    </button>
-                    <button className="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-sm text-white/60">
-                      # topic
-                    </button>
-                    <button className="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-sm text-white/60">
-                      # tag
-                    </button>
-                    <button className="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-sm text-white/60">
-                      📄 file
-                    </button>
-                    <a 
-                      href="https://coachella.com" 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-sm text-white/60 flex items-center gap-2 hover:text-white/80 transition-colors"
-                    >
-                      🔗 coachella.com
-                    </a>
-                  </div>
+                  <MessageInput chatId="demo" className="text-lg" demo={true} />
                 </div>
-              </div>
-
-              {/* Decorative elements */}
-              <div className="absolute -inset-12 -z-10">
-                <div className="absolute inset-0 bg-gradient-to-r from-[var(--blue-primary)]/20 via-transparent to-[var(--blue-primary)]/20 blur-3xl opacity-30" />
               </div>
             </div>
           </div>

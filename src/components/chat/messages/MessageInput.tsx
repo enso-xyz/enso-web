@@ -6,7 +6,6 @@ import React, { useState, useRef, useEffect, useCallback } from "react"
 import TextareaAutosize from "react-textarea-autosize"
 import { toast } from "sonner"
 
-import { Context } from "@/components/chat/context/ContextBar"
 import { useReferences } from "@/hooks/useReferences"
 import { useSuggestions } from "@/hooks/useSuggestions"
 import { MessageProcessor } from "@/lib/ai/messageProcessor"
@@ -15,6 +14,8 @@ import { cn } from "@/lib/utils"
 import { FileHandler } from "./FileHandler"
 import { MenuHandler } from "./MenuHandler"
 import { ContextHandler } from "./ContextHandler"
+
+import type { Context } from "@/types/ai/context"
 
 interface MessageInputProps {
   chatId: string
@@ -61,7 +62,7 @@ export function MessageInput({ chatId, className, demo = false }: MessageInputPr
     if (!demo && inputRef.current) {
       inputRef.current.focus()
     }
-  }, []) // Empty dependency array since we only want this on mount
+  }, [demo]) // Empty dependency array since we only want this on mount
 
   const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault()

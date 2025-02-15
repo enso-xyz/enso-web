@@ -20,10 +20,10 @@ export function LogoCard({ className }: LogoCardProps) {
       onMouseLeave={() => setIsHovered(false)}
     >
       <FollowCursor
-        cardWidth="100%"
+        className="w-full"
         rotationFactor={40}
         enableTilt={true}
-        animationConfig={{ mass: 5, tension: 350, friction: 40 }}
+        springConfig={{ stiffness: 350, damping: 40 }}
       >
         <AnimatePresence>
           {isHovered && (

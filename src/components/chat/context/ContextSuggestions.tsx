@@ -4,15 +4,7 @@ import React from "react"
 import { cn } from "@/lib/utils"
 import { AnimatePresence, motion } from "framer-motion"
 import { User, Hash, Link2, FileText } from "lucide-react"
-import type { Context as ContextBarContext } from "./ContextBar"
-
-interface Context {
-  id: string
-  type: 'user' | 'thread' | 'topic' | 'file'
-  title: string
-  preview?: string
-  subtitle?: string
-}
+import type { Context } from "@/types/ai/context"
 
 interface ContextSuggestionsProps {
   suggestions: Context[]
@@ -93,9 +85,9 @@ export function ContextSuggestions({
                       </span>
                     )}
                   </div>
-                  {suggestion.preview && (
+                  {suggestion.subtitle && (
                     <p className="text-sm font-extralight text-white/60 line-clamp-2 mt-1">
-                      {suggestion.preview}
+                      {suggestion.subtitle}
                     </p>
                   )}
                 </div>

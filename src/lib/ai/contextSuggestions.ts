@@ -1,6 +1,6 @@
 import { AIService } from './services'
 import { getSupabaseClient } from '../supabase/client'
-import { Context } from '@/components/chat/context/ContextBar'
+import type { Context } from "@/types/ai/context"
 
 export interface SuggestionResult {
   contexts: Context[]

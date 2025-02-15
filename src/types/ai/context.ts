@@ -7,14 +7,7 @@ export interface ContextMetadata {
   name?: string
   email?: string
   full_name?: string
-  type?: string
-  size?: string
-  preview?: string
-  author?: string
-  date?: string
-  source?: string
-  relevance?: number
-  confidence?: number
+  subtitle?: string
   [key: string]: any
 }
 
@@ -22,10 +15,8 @@ export interface Context {
   id: string
   type: ContextType
   title: string
-  preview?: string
+  subtitle?: string
   metadata: ContextMetadata
-  embedding?: number[]
-  messageId?: string
 }
 
 export interface Reference {

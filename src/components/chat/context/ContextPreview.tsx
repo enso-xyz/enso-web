@@ -4,34 +4,30 @@ import React from "react"
 import { User, Hash, Link2, FileText, MessageSquare, X } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { motion } from "framer-motion"
+import type { ContextType } from "@/types/ai/context"
 
 interface ContextPreviewProps {
-  type: 'user' | 'thread' | 'topic' | 'file' | 'link'
+  type: ContextType
   title: string
-  preview?: string
-  metadata?: {
-    author?: string
-    date?: string
-    size?: string
-    relevance?: number // 0-1 score for relevance
-    confidence?: number // 0-1 score for AI confidence
-    [key: string]: any
-  }
+  subtitle?: string
+  metadata?: Record<string, any>
   isFloating?: boolean
   onClick?: () => void
   onRemove?: () => void
   className?: string
+  variant?: 'global' | 'input' | 'inline'
 }
 
 export function ContextPreview({
   type,
   title,
-  preview,
+  subtitle,
   metadata,
   isFloating = false,
   onClick,
   onRemove,
-  className
+  className,
+  variant = 'global'
 }: ContextPreviewProps) {
   const icons = {
     user: User,
@@ -54,7 +50,12 @@ export function ContextPreview({
         isFloating && "shadow-lg hover:shadow-xl",
         metadata?.relevance && metadata.relevance > 0.8 && "ring-2 ring-blue-500/20",
         metadata?.confidence && metadata.confidence > 0.8 && "ring-2 ring-green-500/20",
-        className
+        className,
+        {
+          'px-3 py-1.5 text-sm': variant === 'global',
+          'px-2 py-1 text-xs': variant === 'input',
+          'px-1.5 py-0.5 text-xs': variant === 'inline'
+        }
       )}
       onClick={onClick}
     >
@@ -103,9 +104,9 @@ export function ContextPreview({
               </span>
             )}
           </div>
-          {preview && (
+          {metadata?.description && (
             <p className="text-sm font-extralight text-white/60 line-clamp-2">
-              {preview}
+              {metadata.description}
             </p>
           )}
           {metadata?.size && (

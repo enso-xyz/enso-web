@@ -12,6 +12,8 @@ import { ContextPreview } from "@/components/chat/context/ContextPreview"
 import { STORY_TYPES, CONTEXT_TYPES, CONTEXT_PREVIEWS, DEMO_CONTENT, type StoryType, type ContextType } from "@/lib/constants/demo-content"
 import { Footer } from "@/components/ui/footer"
 import { SharedFooter } from "@/components/ui/shared-footer"
+import { ContextBar } from "@/components/chat/context/ContextBar"
+import type { Context } from "@/types/ai/context"
 
 type DemoContent = React.ReactNode | ((story: StoryType) => React.ReactElement)
 
@@ -41,13 +43,33 @@ export default function FeaturesPage() {
 
   const getStoryContent = (story: StoryType) => DEMO_CONTENT[story]
 
+  const demoContexts: Context[] = [
+    {
+      id: 'demo-user',
+      type: 'user',
+      title: 'Alex Rivera',
+      subtitle: 'Online',
+      metadata: {
+        email: 'alex@enso.chat',
+        avatar_url: '/avatars/alex.jpg'
+      }
+    },
+    {
+      id: 'demo-thread',
+      type: 'thread',
+      title: 'Project Brainstorm',
+      subtitle: 'Updated 2h ago',
+      metadata: { messages: 24 }
+    }
+  ]
+
   const features: Feature[] = [
     {
       title: "thread linking",
       subtitle: "conversations that remember",
       content: "naturally reference past conversations and watch as context flows between threads. no more searching through message history—just mention a thread and watch the context emerge.",
       demo: (story: StoryType) => (
-        <div className="rounded-2xl border border-white/10 bg-black/40 overflow-hidden backdrop-blur-sm h-[400px]">
+        <div className="rounded-2xl border border-white/10 bg-black/40 overflow-hidden backdrop-blur-sm h-[400px] flex flex-col">
           <ChatHeader 
             chatId="demo-1"
             type="group"
@@ -65,7 +87,8 @@ export default function FeaturesPage() {
               }
             ]}
           />
-          <div className="p-6 space-y-6">
+          
+          <div className="p-6 space-y-6 flex-1 overflow-auto">
             <MessageBubble
               message={{
                 id: "1",
@@ -77,21 +100,15 @@ export default function FeaturesPage() {
                   email: "demo@enso.chat"
                 }
               }}
+              contexts={demoContexts}
             />
-            <div className="flex flex-wrap gap-4">
-              <ReferencePreview
-                reference={{
-                  id: "1",
-                  type: "thread",
-                  title: getStoryContent(story).threadLinking.reference.title,
-                  content: getStoryContent(story).threadLinking.reference.content,
-                  metadata: { title: getStoryContent(story).threadLinking.reference.title },
-                  similarity: 1
-                }}
-                demo={true}
-              />
-            </div>
           </div>
+
+          {/* Global context bar */}
+          <ContextBar
+            contexts={demoContexts}
+            onContextRemove={(id) => console.log('remove', id)}
+          />
         </div>
       )
     },
@@ -100,8 +117,15 @@ export default function FeaturesPage() {
       subtitle: "express with intention",
       content: "your thoughts flow naturally into a living web of meaning, weaving connections through the digital consciousness. our ambient intelligence understands your intent, helping ideas resonate across conversations.",
       demo: (
-        <div className="rounded-2xl border border-white/10 bg-black/40 overflow-hidden backdrop-blur-sm h-[400px]">
-          <div className="p-6">
+        <div className="rounded-2xl border border-white/10 bg-black/40 overflow-hidden backdrop-blur-sm h-[400px] flex flex-col">
+          {/* Add context bar above input */}
+          <ContextBar 
+            contexts={demoContexts}
+            variant="input"
+            className="border-b border-white/5"
+          />
+          
+          <div className="p-6 flex-1">
             <MessageInput chatId="demo-2" demo={true} />
           </div>
         </div>

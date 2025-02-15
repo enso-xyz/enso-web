@@ -2,9 +2,9 @@
 
 import { useState, useEffect, useRef } from "react"
 import { getSupabaseClient } from "@/lib/supabase/client"
-import { Context } from "@/components/chat/context/ContextBar"
 import Fuse from 'fuse.js'
 import { ContextService } from "@/lib/ai/context"
+import type { Context, ContextType } from "@/types/ai/context"
 
 interface SuggestionOptions {
   type?: string

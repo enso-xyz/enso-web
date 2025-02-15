@@ -17,7 +17,7 @@ import { ContextService } from "@/lib/ai/context"
 import { ContextBar } from "@/components/chat/context/ContextBar"
 import { ContextPanel } from "@/components/chat/context/ContextPanel"
 import { useChatContext } from "@/hooks/useChatContext"
-import type { ContextType } from "@/components/chat/context/ContextTile"
+import type { Context } from "@/types/ai/context"
 
 export default function ChatRoomPage() {
   const params = useParams()
@@ -62,7 +62,7 @@ export default function ChatRoomPage() {
         title: ctx.metadata.title || ctx.metadata.name || ctx.metadata.full_name || 'Untitled',
         description: ctx.metadata.description || ctx.metadata.email
       }
-    }))
+    } as Context))
     dispatch(setActiveContexts(transformedContexts))
   }
 
@@ -107,7 +107,7 @@ export default function ChatRoomPage() {
             title: ctx.metadata.title || ctx.metadata.name || ctx.metadata.full_name || 'Untitled',
             description: ctx.metadata.description || ctx.metadata.email
           }
-        }))
+        } as Context))
         dispatch(setActiveContexts(transformedContexts))
       })
   }, [chatId, dispatch])
@@ -134,7 +134,7 @@ export default function ChatRoomPage() {
   return (
     <div className="flex-1 flex flex-col min-h-0">
       <ContextBar 
-        contexts={activeContexts}
+        contexts={activeContexts as unknown as Context[]}
         onContextRemove={(id) => dispatch(removeContext(id))}
       />
       {/* Header */}
