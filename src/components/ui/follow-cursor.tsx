@@ -23,7 +23,7 @@ export function FollowCursor({
   rotationFactor = 20,
   perspective = "300px",
   enableTilt = true,
-  cursorOffset = { x: 0, y: 24 } // Increased vertical offset to 24px
+  cursorOffset = { x: 0, y: 32 } // Increased vertical offset to 32px for perfect centering
 }: FollowCursorProps) {
   const containerRef = useRef<HTMLDivElement>(null)
 
