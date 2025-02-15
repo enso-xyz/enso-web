@@ -26,8 +26,7 @@ export function MobileNavDock({ className }: MobileNavDockProps) {
   return (
     <nav className={cn(
       "fixed bottom-0 left-0 right-0 z-50 px-4 pb-4",
-      "opacity-0 lg:opacity-0 transition-opacity duration-300",
-      "[&:not(:has(+.lg\:block))]:opacity-100", // Show when no lg:block sibling exists (mobile)
+      "lg:opacity-0 lg:pointer-events-none opacity-100 transition-opacity duration-300",
       className
     )}>
       <div className={cn(
@@ -37,8 +36,8 @@ export function MobileNavDock({ className }: MobileNavDockProps) {
         "border border-white/[0.08]",
         "shadow-lg shadow-black/25",
         "max-w-[320px] mx-auto w-full",
-        "transform translate-y-[100%] lg:translate-y-[100%] transition-transform duration-300",
-        "[&:not(:has(+.lg\:block))]:translate-y-0" // Slide up when no lg:block sibling exists (mobile)
+        "transform transition-transform duration-300",
+        "lg:translate-y-4 translate-y-0"
       )}>
         {links.map(({ href, label }) => (
           <Link

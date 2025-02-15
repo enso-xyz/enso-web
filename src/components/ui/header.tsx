@@ -35,7 +35,7 @@ export function Header({ className }: HeaderProps) {
             </h1>
           </Link>
           
-          {/* Primary Nav */}
+          {/* Primary Nav - Hidden on mobile, fades in on lg breakpoint */}
           <nav className="hidden lg:flex items-center gap-8 opacity-0 lg:opacity-100 transition-opacity duration-300">
             <Link href="/features" className="text-lg text-white/40 hover:text-white/60 transition-colors font-extralight">
               features
@@ -52,7 +52,7 @@ export function Header({ className }: HeaderProps) {
           </nav>
         </div>
 
-        {/* Auth actions */}
+        {/* Auth actions - Hidden on mobile, fades in on lg breakpoint */}
         <div className="hidden lg:flex items-center gap-4 opacity-0 lg:opacity-100 transition-opacity duration-300">
           <MagneticGlowButton
             onClick={() => router.push("/login")}
