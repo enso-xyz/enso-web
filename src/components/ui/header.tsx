@@ -36,7 +36,7 @@ export function Header({ className }: HeaderProps) {
           </Link>
           
           {/* Primary Nav */}
-          <nav className="hidden md:flex items-center gap-8">
+          <nav className="hidden lg:flex items-center gap-8 opacity-0 lg:opacity-100 transition-opacity duration-300">
             <Link href="/features" className="text-lg text-white/40 hover:text-white/60 transition-colors font-extralight">
               features
             </Link>
@@ -53,7 +53,7 @@ export function Header({ className }: HeaderProps) {
         </div>
 
         {/* Auth actions */}
-        <div className="flex items-center gap-4">
+        <div className="hidden lg:flex items-center gap-4 opacity-0 lg:opacity-100 transition-opacity duration-300">
           <MagneticGlowButton
             onClick={() => router.push("/login")}
             glowColor="rgba(255, 255, 255, 0.1)"
