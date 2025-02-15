@@ -1,85 +1,59 @@
 "use client"
 
 import { useRef } from "react"
-import { motion, useMotionValue, useSpring, useTransform } from "framer-motion"
+import { motion, useMotionValue, useSpring } from "framer-motion"
 import { cn } from "@/lib/utils"
 
 interface FollowCursorProps {
   children: React.ReactNode
   className?: string
   springConfig?: { stiffness: number; damping: number }
-  hoverScale?: number
-  rotationFactor?: number
-  perspective?: string
-  enableTilt?: boolean
-  cursorOffset?: { x: number; y: number }
 }
 
 export function FollowCursor({
   children,
   className,
-  springConfig = { stiffness: 400, damping: 30 },
-  hoverScale = 1.1,
-  rotationFactor = 20,
-  perspective = "300px",
-  enableTilt = true,
-  cursorOffset = { x: 0, y: 32 } // Increased vertical offset to 32px for perfect centering
+  springConfig = { stiffness: 1000, damping: 50 },
 }: FollowCursorProps) {
   const containerRef = useRef<HTMLDivElement>(null)
 
-  // Motion values for tracking mouse position and movement
-  const mouseX = useMotionValue(0)
-  const mouseY = useMotionValue(0)
-
-  // Smooth spring animations
-  const springX = useSpring(mouseX, springConfig)
-  const springY = useSpring(mouseY, springConfig)
-  const scale = useSpring(1, springConfig)
+  // Motion values for cursor following
+  const x = useMotionValue(0)
+  const y = useMotionValue(0)
+  
+  // Smooth spring animations for position
+  const springX = useSpring(x, springConfig)
+  const springY = useSpring(y, springConfig)
 
   const handleMouseMove = (event: React.MouseEvent<HTMLDivElement>) => {
-    if (!enableTilt || !containerRef.current) return
+    if (!containerRef.current) return
 
     const rect = containerRef.current.getBoundingClientRect()
-
-    // Calculate cursor position relative to the element
-    const relativeX = event.clientX - rect.left
-    const relativeY = event.clientY - rect.top
-
-    // Calculate the offset needed to center the element under the cursor
-    const offsetX = relativeX - rect.width / 2 + cursorOffset.x
-    const offsetY = relativeY - rect.height / 2 + cursorOffset.y
-
-    // Update position values
-    mouseX.set(offsetX)
-    mouseY.set(offsetY)
-  }
-
-  const handleMouseEnter = () => {
-    if (enableTilt) {
-      scale.set(hoverScale)
-    }
-  }
-
-  const handleMouseLeave = () => {
-    mouseX.set(0)
-    mouseY.set(0)
-    scale.set(1)
+    
+    // Calculate position relative to container with a slight offset correction
+    const offsetX = event.clientX - rect.left - 70
+    const offsetY = event.clientY - rect.top - 70
+    
+    x.set(offsetX)
+    y.set(offsetY)
   }
 
   return (
     <div 
       ref={containerRef}
-      className={cn("relative", className)}
+      className={cn("absolute inset-0", className)}
       onMouseMove={handleMouseMove}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
+      onMouseEnter={handleMouseMove}
     >
       <motion.div
         style={{
+          position: "absolute",
+          pointerEvents: "none",
           x: springX,
           y: springY,
-          scale,
-          transformStyle: "preserve-3d"
+          transform: "translate(-50%, -50%)",
+          margin: 0,
+          padding: 0,
         }}
       >
         {children}

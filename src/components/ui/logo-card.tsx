@@ -1,10 +1,10 @@
 "use client"
 
-import { useState } from "react"
+import React, { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { Logo } from "./logo"
-import { FollowCursor } from "./follow-cursor"
 import { cn } from "@/lib/utils"
+import { FollowCursor } from "./follow-cursor"
+import { Logo } from "./logo"
 
 interface LogoCardProps {
   className?: string
@@ -12,38 +12,59 @@ interface LogoCardProps {
 
 export function LogoCard({ className }: LogoCardProps) {
   const [isHovered, setIsHovered] = useState(false)
+  const [isTouchDevice, setIsTouchDevice] = useState(false)
+
+  // Detect touch device on mount
+  useEffect(() => {
+    setIsTouchDevice('ontouchstart' in window || navigator.maxTouchPoints > 0)
+  }, [])
 
   return (
     <div 
       className={cn(
-        "relative aspect-square",
-        "hidden lg:block",
+        "relative w-full h-full rounded-lg",
+        "transition-colors duration-200",
+        "hover:bg-white/[0.07]",
         className
       )}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
+      onMouseEnter={() => !isTouchDevice && setIsHovered(true)}
+      onMouseLeave={() => !isTouchDevice && setIsHovered(false)}
+      onTouchStart={() => isTouchDevice && setIsHovered(true)}
+      onTouchEnd={() => isTouchDevice && setIsHovered(false)}
     >
-      <FollowCursor
-        className="w-full h-full"
-        rotationFactor={0}
-        enableTilt={true}
-        springConfig={{ stiffness: 250, damping: 25 }}
-        hoverScale={1}
-      >
+      {isTouchDevice ? (
+        // For touch devices: centered logo with fade animation
         <AnimatePresence>
           {isHovered && (
             <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.8 }}
               transition={{ duration: 0.2 }}
-              className="absolute inset-0 flex items-center justify-center pointer-events-none"
+              className="absolute inset-0 flex items-center justify-center"
             >
-              <Logo size="lg" />
+              <Logo className="w-10 h-10" />
             </motion.div>
           )}
         </AnimatePresence>
-      </FollowCursor>
+      ) : (
+        // For mouse devices: cursor following behavior
+        <FollowCursor>
+          <AnimatePresence>
+            {isHovered && (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.8 }}
+                transition={{ duration: 0.2 }}
+                className="flex items-center justify-center"
+              >
+                <Logo className="w-10 h-10" />
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </FollowCursor>
+      )}
     </div>
   )
 } 
