@@ -38,16 +38,18 @@ export function FollowCursor({
     if (!enableTilt || !containerRef.current) return
 
     const rect = containerRef.current.getBoundingClientRect()
-    const centerX = rect.left + rect.width / 2
-    const centerY = rect.top + rect.height / 2
 
-    // Calculate distance from center
-    const distanceX = event.clientX - centerX
-    const distanceY = event.clientY - centerY
+    // Calculate cursor position relative to the element
+    const relativeX = event.clientX - rect.left
+    const relativeY = event.clientY - rect.top
+
+    // Calculate the offset needed to center the element under the cursor
+    const offsetX = relativeX - rect.width / 2
+    const offsetY = relativeY - rect.height / 2
 
     // Update position values
-    mouseX.set(distanceX)
-    mouseY.set(distanceY)
+    mouseX.set(offsetX)
+    mouseY.set(offsetY)
   }
 
   const handleMouseEnter = () => {
