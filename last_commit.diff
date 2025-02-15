@@ -1,0 +1,1147 @@
+commit a390ee5e6c03ba6cf8736ffa4d8820a306863e2e
+Author: Luke Nittmann <luke.nittmann@gmail.com>
+Date:   Sat Feb 15 03:54:34 2025 -0800
+
+    refactor: unify context types and improve component interfaces - Fix duplicate Context type imports - Migrate FollowCursor from react-spring to framer-motion - Update LogoCard to use correct FollowCursor props - Improve MessageBubble with better context handling - Unify Context type definitions across the app
+
+diff --git a/src/app/(app)/chat/[id]/page.tsx b/src/app/(app)/chat/[id]/page.tsx
+index b39d895..3ff8770 100644
+--- a/src/app/(app)/chat/[id]/page.tsx
++++ b/src/app/(app)/chat/[id]/page.tsx
+@@ -17,7 +17,7 @@ import { ContextService } from "@/lib/ai/context"
+ import { ContextBar } from "@/components/chat/context/ContextBar"
+ import { ContextPanel } from "@/components/chat/context/ContextPanel"
+ import { useChatContext } from "@/hooks/useChatContext"
+-import type { ContextType } from "@/components/chat/context/ContextTile"
++import type { Context } from "@/types/ai/context"
+ 
+ export default function ChatRoomPage() {
+   const params = useParams()
+@@ -62,7 +62,7 @@ export default function ChatRoomPage() {
+         title: ctx.metadata.title || ctx.metadata.name || ctx.metadata.full_name || 'Untitled',
+         description: ctx.metadata.description || ctx.metadata.email
+       }
+-    }))
++    } as Context))
+     dispatch(setActiveContexts(transformedContexts))
+   }
+ 
+@@ -107,7 +107,7 @@ export default function ChatRoomPage() {
+             title: ctx.metadata.title || ctx.metadata.name || ctx.metadata.full_name || 'Untitled',
+             description: ctx.metadata.description || ctx.metadata.email
+           }
+-        }))
++        } as Context))
+         dispatch(setActiveContexts(transformedContexts))
+       })
+   }, [chatId, dispatch])
+@@ -134,7 +134,7 @@ export default function ChatRoomPage() {
+   return (
+     <div className="flex-1 flex flex-col min-h-0">
+       <ContextBar 
+-        contexts={activeContexts}
++        contexts={activeContexts as unknown as Context[]}
+         onContextRemove={(id) => dispatch(removeContext(id))}
+       />
+       {/* Header */}
+diff --git a/src/app/features/page.tsx b/src/app/features/page.tsx
+index 018fcd7..c5168c3 100644
+--- a/src/app/features/page.tsx
++++ b/src/app/features/page.tsx
+@@ -12,6 +12,8 @@ import { ContextPreview } from "@/components/chat/context/ContextPreview"
+ import { STORY_TYPES, CONTEXT_TYPES, CONTEXT_PREVIEWS, DEMO_CONTENT, type StoryType, type ContextType } from "@/lib/constants/demo-content"
+ import { Footer } from "@/components/ui/footer"
+ import { SharedFooter } from "@/components/ui/shared-footer"
++import { ContextBar } from "@/components/chat/context/ContextBar"
++import type { Context } from "@/types/ai/context"
+ 
+ type DemoContent = React.ReactNode | ((story: StoryType) => React.ReactElement)
+ 
+@@ -41,13 +43,33 @@ export default function FeaturesPage() {
+ 
+   const getStoryContent = (story: StoryType) => DEMO_CONTENT[story]
+ 
++  const demoContexts: Context[] = [
++    {
++      id: 'demo-user',
++      type: 'user',
++      title: 'Alex Rivera',
++      subtitle: 'Online',
++      metadata: {
++        email: 'alex@enso.chat',
++        avatar_url: '/avatars/alex.jpg'
++      }
++    },
++    {
++      id: 'demo-thread',
++      type: 'thread',
++      title: 'Project Brainstorm',
++      subtitle: 'Updated 2h ago',
++      metadata: { messages: 24 }
++    }
++  ]
++
+   const features: Feature[] = [
+     {
+       title: "thread linking",
+       subtitle: "conversations that remember",
+       content: "naturally reference past conversations and watch as context flows between threads. no more searching through message history—just mention a thread and watch the context emerge.",
+       demo: (story: StoryType) => (
+-        <div className="rounded-2xl border border-white/10 bg-black/40 overflow-hidden backdrop-blur-sm h-[400px]">
++        <div className="rounded-2xl border border-white/10 bg-black/40 overflow-hidden backdrop-blur-sm h-[400px] flex flex-col">
+           <ChatHeader 
+             chatId="demo-1"
+             type="group"
+@@ -65,7 +87,8 @@ export default function FeaturesPage() {
+               }
+             ]}
+           />
+-          <div className="p-6 space-y-6">
++          
++          <div className="p-6 space-y-6 flex-1 overflow-auto">
+             <MessageBubble
+               message={{
+                 id: "1",
+@@ -77,21 +100,15 @@ export default function FeaturesPage() {
+                   email: "demo@enso.chat"
+                 }
+               }}
++              contexts={demoContexts}
+             />
+-            <div className="flex flex-wrap gap-4">
+-              <ReferencePreview
+-                reference={{
+-                  id: "1",
+-                  type: "thread",
+-                  title: getStoryContent(story).threadLinking.reference.title,
+-                  content: getStoryContent(story).threadLinking.reference.content,
+-                  metadata: { title: getStoryContent(story).threadLinking.reference.title },
+-                  similarity: 1
+-                }}
+-                demo={true}
+-              />
+-            </div>
+           </div>
++
++          {/* Global context bar */}
++          <ContextBar
++            contexts={demoContexts}
++            onContextRemove={(id) => console.log('remove', id)}
++          />
+         </div>
+       )
+     },
+@@ -100,8 +117,15 @@ export default function FeaturesPage() {
+       subtitle: "express with intention",
+       content: "your thoughts flow naturally into a living web of meaning, weaving connections through the digital consciousness. our ambient intelligence understands your intent, helping ideas resonate across conversations.",
+       demo: (
+-        <div className="rounded-2xl border border-white/10 bg-black/40 overflow-hidden backdrop-blur-sm h-[400px]">
+-          <div className="p-6">
++        <div className="rounded-2xl border border-white/10 bg-black/40 overflow-hidden backdrop-blur-sm h-[400px] flex flex-col">
++          {/* Add context bar above input */}
++          <ContextBar 
++            contexts={demoContexts}
++            variant="input"
++            className="border-b border-white/5"
++          />
++          
++          <div className="p-6 flex-1">
+             <MessageInput chatId="demo-2" demo={true} />
+           </div>
+         </div>
+diff --git a/src/app/page.tsx b/src/app/page.tsx
+index 6f76ad4..823bed2 100644
+--- a/src/app/page.tsx
++++ b/src/app/page.tsx
+@@ -140,7 +140,7 @@ export default function RootPage() {
+       </section>
+ 
+       {/* Demo section with black background */}
+-      <section className="bg-[var(--black-pure)] min-h-[90vh] flex flex-col -mt-24 border-t border-white/10">
++      <section className="bg-[var(--black-pure)] min-h-[70vh] flex flex-col -mt-32 border-t border-white/10">
+         {/* Demo container */}
+         <div className="flex-1 flex items-start justify-center pt-32 pb-4">
+           <div className="w-full max-w-[1400px] mx-auto px-8 md:px-12 lg:px-16">
+@@ -192,59 +192,9 @@ export default function RootPage() {
+                     <MessageBubble key={message.id} message={message} className="text-lg" />
+                   ))}
+ 
+-                  {/* References */}
+-                  <div className="flex flex-wrap gap-5">
+-                    {CONTEXT_TYPES.map((type) => (
+-                      <ReferencePreview 
+-                        key={type}
+-                        reference={{
+-                          id: type,
+-                          type: type,
+-                          ...CONTEXT_PREVIEWS.social[type],
+-                          content: CONTEXT_PREVIEWS.social[type].preview,
+-                          similarity: 1
+-                        }}
+-                        className="scale-110"
+-                        demo={true}
+-                      />
+-                    ))}
+-                  </div>
+-
+-                  {/* Input */}
+-                  <div className="pt-6">
+-                    <MessageInput chatId="demo" className="text-lg" demo={true} />
+-                  </div>
+-
+-                  {/* Context tags */}
+-                  <div className="flex gap-2">
+-                    <button className="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-sm text-white/60">
+-                      @ mention
+-                    </button>
+-                    <button className="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-sm text-white/60">
+-                      # topic
+-                    </button>
+-                    <button className="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-sm text-white/60">
+-                      # tag
+-                    </button>
+-                    <button className="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-sm text-white/60">
+-                      📄 file
+-                    </button>
+-                    <a 
+-                      href="https://coachella.com" 
+-                      target="_blank" 
+-                      rel="noopener noreferrer"
+-                      className="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-sm text-white/60 flex items-center gap-2 hover:text-white/80 transition-colors"
+-                    >
+-                      🔗 coachella.com
+-                    </a>
+-                  </div>
++                  <MessageInput chatId="demo" className="text-lg" demo={true} />
+                 </div>
+               </div>
+-
+-              {/* Decorative elements */}
+-              <div className="absolute -inset-12 -z-10">
+-                <div className="absolute inset-0 bg-gradient-to-r from-[var(--blue-primary)]/20 via-transparent to-[var(--blue-primary)]/20 blur-3xl opacity-30" />
+-              </div>
+             </div>
+           </div>
+         </div>
+diff --git a/src/components/chat/context/ContextBar.tsx b/src/components/chat/context/ContextBar.tsx
+index a0bcf6d..b4b769c 100644
+--- a/src/components/chat/context/ContextBar.tsx
++++ b/src/components/chat/context/ContextBar.tsx
+@@ -5,114 +5,47 @@ import { motion, AnimatePresence } from "framer-motion"
+ import { ChevronDown, ChevronUp } from "lucide-react"
+ import { cn } from "@/lib/utils"
+ import { ContextPreview } from "./ContextPreview"
+-import { ContextType } from '@/types/ai/context'
+-
+-export interface Context {
+-  id: string
+-  type: ContextType
+-  title: string
+-  preview?: string
+-  metadata?: {
+-    author?: string
+-    date?: string
+-    size?: string
+-    relevance?: number
+-    confidence?: number
+-  }
+-}
++import type { Context, ContextType } from "@/types/ai/context"
+ 
+ interface ContextBarProps {
+   contexts: Context[]
+-  suggestions?: Context[]
+-  isCollapsed?: boolean
+-  onToggleCollapse?: () => void
+-  onContextClick?: (context: Context) => void
+   onContextRemove?: (id: string) => void
++  onContextClick?: (context: Context) => void
++  variant?: 'global' | 'input' | 'inline'
+   className?: string
+ }
+ 
+-export function ContextBar({
+-  contexts,
+-  suggestions = [],
+-  isCollapsed = false,
+-  onToggleCollapse,
+-  onContextClick,
++export function ContextBar({ 
++  contexts, 
+   onContextRemove,
+-  className
++  onContextClick,
++  variant = 'global',
++  className 
+ }: ContextBarProps) {
+-  const hasContent = contexts.length > 0 || suggestions.length > 0
+-
+   return (
+     <div className={cn(
+-      "relative transition-all duration-300",
+-      isCollapsed ? "h-12" : "h-auto",
+-      !hasContent && "opacity-0",
++      "flex items-center gap-2 p-2 bg-black/20 backdrop-blur-sm",
++      {
++        'px-4 py-2': variant === 'global',
++        'px-3 py-1.5': variant === 'input',
++        'px-2 py-1': variant === 'inline'
++      },
+       className
+     )}>
+-      {/* Collapse toggle */}
+-      {hasContent && (
+-        <button
+-          onClick={onToggleCollapse}
+-          className={cn(
+-            "absolute -top-4 left-1/2 -translate-x-1/2",
+-            "h-8 w-8 rounded-full bg-white/5 backdrop-blur-sm",
+-            "flex items-center justify-center",
+-            "text-white/40 hover:text-white/60 transition-colors",
+-            "border border-white/5"
+-          )}
+-        >
+-          {isCollapsed ? (
+-            <ChevronDown className="h-4 w-4" />
+-          ) : (
+-            <ChevronUp className="h-4 w-4" />
+-          )}
+-        </button>
+-      )}
+-
+-      {/* Content */}
+-      <AnimatePresence>
+-        {!isCollapsed && (
+-          <motion.div
+-            initial={{ opacity: 0, height: 0 }}
+-            animate={{ opacity: 1, height: "auto" }}
+-            exit={{ opacity: 0, height: 0 }}
+-            className="space-y-4"
+-          >
+-            {/* Active contexts */}
+-            {contexts.length > 0 && (
+-              <div className="space-y-2">
+-                <h3 className="text-sm font-light text-white/40">active context</h3>
+-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+-                  {contexts.map(context => (
+-                    <ContextPreview
+-                      key={context.id}
+-                      {...context}
+-                      isFloating={true}
+-                      onRemove={onContextRemove ? () => onContextRemove(context.id) : undefined}
+-                    />
+-                  ))}
+-                </div>
+-              </div>
+-            )}
+-
+-            {/* Suggestions */}
+-            {suggestions.length > 0 && (
+-              <div className="space-y-2">
+-                <h3 className="text-sm font-light text-white/40">suggestions</h3>
+-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+-                  {suggestions.map(suggestion => (
+-                    <ContextPreview
+-                      key={suggestion.id}
+-                      {...suggestion}
+-                      isFloating={true}
+-                    />
+-                  ))}
+-                </div>
+-              </div>
+-            )}
+-          </motion.div>
+-        )}
+-      </AnimatePresence>
++      <div className="flex items-center gap-2 flex-wrap">
++        {contexts.map((context) => (
++          <ContextPreview
++            key={context.id}
++            type={context.type}
++            title={context.title}
++            subtitle={context.subtitle}
++            metadata={context.metadata}
++            variant={variant}
++            onRemove={onContextRemove ? () => onContextRemove(context.id) : undefined}
++            onClick={onContextClick ? () => onContextClick(context) : undefined}
++          />
++        ))}
++      </div>
+     </div>
+   )
+ } 
+\ No newline at end of file
+diff --git a/src/components/chat/context/ContextPanel.tsx b/src/components/chat/context/ContextPanel.tsx
+index 61a0ff8..b480901 100644
+--- a/src/components/chat/context/ContextPanel.tsx
++++ b/src/components/chat/context/ContextPanel.tsx
+@@ -315,8 +315,10 @@ export function ContextPanel({
+                         <ContextPreview
+                           type={item.type === 'message' ? 'thread' : (item.type as 'file' | 'topic')}
+                           title={item.title}
+-                          preview={item.preview}
+-                          metadata={item.metadata}
++                          metadata={{ 
++                            description: item.preview,
++                            created_at: item.metadata.created_at 
++                          }}
+                         />
+                       </motion.div>
+                     ))}
+@@ -421,42 +423,30 @@ export function ContextPanel({
+             >
+               <ScrollArea className="w-full" orientation="horizontal">
+                 <div className="flex gap-4 pb-4" style={{ width: 'max-content' }}>
+-                  {activeFilter === 'topics' && topics.map((topic, i) => (
+-                    <motion.div
++                  {activeFilter === 'topics' && topics.map((topic) => (
++                    <ContextPreview
+                       key={topic.id}
+-                      initial={{ opacity: 0 }}
+-                      animate={{ opacity: 1 }}
+-                      transition={{ duration: 0.2, delay: i * 0.05 }}
+-                    >
+-                      <ContextPreview
+-                        type="topic"
+-                        title={topic.title}
+-                        preview={`${topic.count} messages`}
+-                        metadata={{
+-                          relevance: topic.relevance
+-                        }}
+-                        onClick={() => onTopicClick?.(topic)}
+-                      />
+-                    </motion.div>
++                      type="topic"
++                      title={topic.title}
++                      metadata={{
++                        description: `${topic.count} messages`,
++                        relevance: topic.relevance
++                      }}
++                      onClick={() => onTopicClick?.(topic)}
++                    />
+                   ))}
+-                  {activeFilter === 'files' && files.map((file, i) => (
+-                    <motion.div
++                  {activeFilter === 'files' && files.map((file) => (
++                    <ContextPreview
+                       key={file.id}
+-                      initial={{ opacity: 0 }}
+-                      animate={{ opacity: 1 }}
+-                      transition={{ duration: 0.2, delay: i * 0.05 }}
+-                    >
+-                      <ContextPreview
+-                        type="file"
+-                        title={file.name}
+-                        preview={file.type}
+-                        metadata={{
+-                          lastModified: file.lastModified,
+-                          relevance: file.relevance
+-                        }}
+-                        onClick={() => onFileClick?.(file)}
+-                      />
+-                    </motion.div>
++                      type="file"
++                      title={file.name}
++                      metadata={{
++                        description: file.type,
++                        lastModified: file.lastModified,
++                        relevance: file.relevance
++                      }}
++                      onClick={() => onFileClick?.(file)}
++                    />
+                   ))}
+                 </div>
+               </ScrollArea>
+diff --git a/src/components/chat/context/ContextPreview.tsx b/src/components/chat/context/ContextPreview.tsx
+index abf654c..d8dafae 100644
+--- a/src/components/chat/context/ContextPreview.tsx
++++ b/src/components/chat/context/ContextPreview.tsx
+@@ -4,34 +4,30 @@ import React from "react"
+ import { User, Hash, Link2, FileText, MessageSquare, X } from "lucide-react"
+ import { cn } from "@/lib/utils"
+ import { motion } from "framer-motion"
++import type { ContextType } from "@/types/ai/context"
+ 
+ interface ContextPreviewProps {
+-  type: 'user' | 'thread' | 'topic' | 'file' | 'link'
++  type: ContextType
+   title: string
+-  preview?: string
+-  metadata?: {
+-    author?: string
+-    date?: string
+-    size?: string
+-    relevance?: number // 0-1 score for relevance
+-    confidence?: number // 0-1 score for AI confidence
+-    [key: string]: any
+-  }
++  subtitle?: string
++  metadata?: Record<string, any>
+   isFloating?: boolean
+   onClick?: () => void
+   onRemove?: () => void
+   className?: string
++  variant?: 'global' | 'input' | 'inline'
+ }
+ 
+ export function ContextPreview({
+   type,
+   title,
+-  preview,
++  subtitle,
+   metadata,
+   isFloating = false,
+   onClick,
+   onRemove,
+-  className
++  className,
++  variant = 'global'
+ }: ContextPreviewProps) {
+   const icons = {
+     user: User,
+@@ -54,7 +50,12 @@ export function ContextPreview({
+         isFloating && "shadow-lg hover:shadow-xl",
+         metadata?.relevance && metadata.relevance > 0.8 && "ring-2 ring-blue-500/20",
+         metadata?.confidence && metadata.confidence > 0.8 && "ring-2 ring-green-500/20",
+-        className
++        className,
++        {
++          'px-3 py-1.5 text-sm': variant === 'global',
++          'px-2 py-1 text-xs': variant === 'input',
++          'px-1.5 py-0.5 text-xs': variant === 'inline'
++        }
+       )}
+       onClick={onClick}
+     >
+@@ -103,9 +104,9 @@ export function ContextPreview({
+               </span>
+             )}
+           </div>
+-          {preview && (
++          {metadata?.description && (
+             <p className="text-sm font-extralight text-white/60 line-clamp-2">
+-              {preview}
++              {metadata.description}
+             </p>
+           )}
+           {metadata?.size && (
+diff --git a/src/components/chat/context/ContextSuggestions.tsx b/src/components/chat/context/ContextSuggestions.tsx
+index 747895b..d7bdcec 100644
+--- a/src/components/chat/context/ContextSuggestions.tsx
++++ b/src/components/chat/context/ContextSuggestions.tsx
+@@ -4,15 +4,7 @@ import React from "react"
+ import { cn } from "@/lib/utils"
+ import { AnimatePresence, motion } from "framer-motion"
+ import { User, Hash, Link2, FileText } from "lucide-react"
+-import type { Context as ContextBarContext } from "./ContextBar"
+-
+-interface Context {
+-  id: string
+-  type: 'user' | 'thread' | 'topic' | 'file'
+-  title: string
+-  preview?: string
+-  subtitle?: string
+-}
++import type { Context } from "@/types/ai/context"
+ 
+ interface ContextSuggestionsProps {
+   suggestions: Context[]
+@@ -93,9 +85,9 @@ export function ContextSuggestions({
+                       </span>
+                     )}
+                   </div>
+-                  {suggestion.preview && (
++                  {suggestion.subtitle && (
+                     <p className="text-sm font-extralight text-white/60 line-clamp-2 mt-1">
+-                      {suggestion.preview}
++                      {suggestion.subtitle}
+                     </p>
+                   )}
+                 </div>
+diff --git a/src/components/chat/context/ContextTile.tsx b/src/components/chat/context/ContextTile.tsx
+index 23b0833..2174421 100644
+--- a/src/components/chat/context/ContextTile.tsx
++++ b/src/components/chat/context/ContextTile.tsx
+@@ -4,8 +4,7 @@ import React from "react"
+ import { User, Hash, Link2, FileText, X } from "lucide-react"
+ import { cn } from "@/lib/utils"
+ import { motion } from "framer-motion"
+-
+-export type ContextType = 'user' | 'thread' | 'topic' | 'file'
++import type { ContextType } from "@/types/ai/context"
+ 
+ interface ContextTileProps {
+   type: ContextType
+diff --git a/src/components/chat/messages/ContextHandler.tsx b/src/components/chat/messages/ContextHandler.tsx
+index 4f7e037..a156dd2 100644
+--- a/src/components/chat/messages/ContextHandler.tsx
++++ b/src/components/chat/messages/ContextHandler.tsx
+@@ -1,9 +1,8 @@
+ import React from "react"
+ import { ContextBar } from "@/components/chat/context/ContextBar"
+ import { ContextSuggestions } from "@/components/chat/context/ContextSuggestions"
+-import { Context } from "@/components/chat/context/ContextBar"
+ import { ReferencePreview } from "@/components/chat/references/ReferencePreview"
+-import { ContextType } from "@/types/ai/context"
++import type { Context, ContextType } from "@/types/ai/context"
+ import { Reference } from '@/types/ai/context'
+ 
+ interface ContextHandlerProps {
+@@ -39,7 +38,12 @@ export function ContextHandler({
+       {references.length > 0 && (
+         <div className="absolute bottom-full w-full mb-4 px-4">
+           <div className="flex flex-wrap gap-2 p-2 rounded-lg bg-zinc-900/50 border border-white/5">
+-            {references.map((ref, i) => (
++            {references.map((ref) => ({
++              ...ref,
++              type: ref.type as ContextType,
++              content: ref.content || "",
++              similarity: ref.similarity || 0
++            })).map((ref, i) => (
+               <ReferencePreview 
+                 key={i} 
+                 reference={{
+diff --git a/src/components/chat/messages/MessageBubble.tsx b/src/components/chat/messages/MessageBubble.tsx
+index f5594c8..6b70cc7 100644
+--- a/src/components/chat/messages/MessageBubble.tsx
++++ b/src/components/chat/messages/MessageBubble.tsx
+@@ -16,6 +16,8 @@ import { toast } from "sonner"
+ import { useAppSelector } from "@/lib/redux/store"
+ import { selectMessageReferences } from "@/lib/redux/slices/chatSlice"
+ import { Message } from '@/types'
++import { ContextBar } from "../context/ContextBar"
++import type { Context } from "@/types/ai/context"
+ 
+ interface MessageBubbleProps {
+   message: {
+@@ -37,6 +39,7 @@ interface MessageBubbleProps {
+   onCopy?: () => void
+   onLink?: () => void
+   onThread?: () => void
++  contexts?: Context[]
+ }
+ 
+ interface MenuItem {
+@@ -55,7 +58,8 @@ export function MessageBubble({
+   onReply,
+   onCopy,
+   onLink,
+-  onThread
++  onThread,
++  contexts = []
+ }: MessageBubbleProps) {
+   const references = useAppSelector(state => selectMessageReferences(state, message.id))
+   const [isHovered, setIsHovered] = useState(false)
+@@ -141,116 +145,120 @@ export function MessageBubble({
+   ]
+ 
+   return (
+-    <div 
+-      className={cn(
+-        "space-y-1 p-2 rounded-lg transition-all duration-200",
+-        className
+-      )}
+-      onMouseEnter={() => setIsHovered(true)}
+-      onMouseLeave={() => setIsHovered(false)}
+-    >
+-      <div className="flex items-center justify-between gap-2">
+-        <div className="flex items-center gap-2">
+-          <span className="text-sm font-light text-white/80">
+-            {message.sender?.full_name || message.sender?.email?.split('@')[0] || 'unknown'}
+-          </span>
+-          {formattedDate && (
+-            <span className="text-xs text-white/40 font-extralight">
+-              {formattedDate}
++    <div className={cn("group relative", className)}>
++      <div className="flex flex-col gap-3">
++        <div className="flex items-center justify-between gap-2">
++          <div className="flex items-center gap-2">
++            <span className="text-sm font-light text-white/80">
++              {message.sender?.full_name || message.sender?.email?.split('@')[0] || 'unknown'}
+             </span>
+-          )}
+-          {message.status === 'processing' && (
+-            <motion.div
+-              initial={{ scale: 0.5 }}
+-              animate={{ scale: 1 }}
+-              className="relative ml-2"
++            {formattedDate && (
++              <span className="text-xs text-white/40 font-extralight">
++                {formattedDate}
++              </span>
++            )}
++            {message.status === 'processing' && (
++              <motion.div
++                initial={{ scale: 0.5 }}
++                animate={{ scale: 1 }}
++                className="relative ml-2"
++              >
++                <div className="absolute -inset-1 rounded-full bg-[var(--blue-primary)]/20 animate-pulse" />
++                <div className="h-2 w-2 rounded-full bg-[var(--blue-primary)]" />
++              </motion.div>
++            )}
++          </div>
++
++          {/* Menu Button - Only visible on hover */}
++          <Popover>
++            <PopoverTrigger asChild>
++              <button
++                className={cn(
++                  "p-1 rounded-md transition-all duration-200",
++                  "text-white/40 hover:text-white/60 hover:bg-white/5",
++                  !isHovered && "opacity-0"
++                )}
++              >
++                <MoreHorizontal className="w-4 h-4" />
++              </button>
++            </PopoverTrigger>
++            <PopoverContent 
++              align="end" 
++              className="w-56 p-1.5"
++              sideOffset={4}
+             >
+-              <div className="absolute -inset-1 rounded-full bg-[var(--blue-primary)]/20 animate-pulse" />
+-              <div className="h-2 w-2 rounded-full bg-[var(--blue-primary)]" />
+-            </motion.div>
+-          )}
++              <div className="space-y-0.5">
++                {menuItems.map((item) => (
++                  <button
++                    key={item.id}
++                    onClick={item.onClick}
++                    className={cn(
++                      "w-full flex items-center gap-3 px-2.5 h-7 rounded-md hover:bg-white/5 transition-colors group relative",
++                      item.danger && "hover:bg-red-500/10 text-red-400/60 hover:text-red-400",
++                      item.comingSoon && "opacity-50 cursor-not-allowed hover:bg-transparent"
++                    )}
++                  >
++                    <item.icon className={cn(
++                      "w-3.5 h-3.5 text-white/60 group-hover:text-white/80 transition-colors",
++                      item.danger && "text-red-400/60 group-hover:text-red-400"
++                    )} />
++                    <div className="flex items-center gap-2 flex-1">
++                      <span className={cn(
++                        "text-sm text-white/80 font-extralight text-left flex-1",
++                        item.danger && "text-red-400/60 group-hover:text-red-400"
++                      )}>
++                        {item.label}
++                      </span>
++                      {item.comingSoon && (
++                        <div className="ml-auto">
++                          <span className="text-[10px] font-medium text-white/80 bg-white/10 px-1.5 py-0.5 rounded">
++                            soon
++                          </span>
++                        </div>
++                      )}
++                    </div>
++                  </button>
++                ))}
++              </div>
++            </PopoverContent>
++          </Popover>
+         </div>
+ 
+-        {/* Menu Button - Only visible on hover */}
+-        <Popover>
+-          <PopoverTrigger asChild>
+-            <button
+-              className={cn(
+-                "p-1 rounded-md transition-all duration-200",
+-                "text-white/40 hover:text-white/60 hover:bg-white/5",
+-                !isHovered && "opacity-0"
+-              )}
+-            >
+-              <MoreHorizontal className="w-4 h-4" />
+-            </button>
+-          </PopoverTrigger>
+-          <PopoverContent 
+-            align="end" 
+-            className="w-56 p-1.5"
+-            sideOffset={4}
++        <div className="text-sm text-white/80 font-light leading-relaxed">
++          <ReactMarkdown 
++            remarkPlugins={[remarkGfm]}
++            components={{
++              code({ className, children }) {
++                return (
++                  <code className={cn(
++                    "rounded bg-white/5 px-1.5 py-0.5 text-[13px] font-mono",
++                    className
++                  )}>
++                    {children}
++                  </code>
++                )
++              },
++              pre({ children }) {
++                return (
++                  <pre className="rounded-lg bg-white/5 p-4 font-mono text-[13px] leading-relaxed">
++                    {children}
++                  </pre>
++                )
++              }
++            }}
+           >
+-            <div className="space-y-0.5">
+-              {menuItems.map((item) => (
+-                <button
+-                  key={item.id}
+-                  onClick={item.onClick}
+-                  className={cn(
+-                    "w-full flex items-center gap-3 px-2.5 h-7 rounded-md hover:bg-white/5 transition-colors group relative",
+-                    item.danger && "hover:bg-red-500/10 text-red-400/60 hover:text-red-400",
+-                    item.comingSoon && "opacity-50 cursor-not-allowed hover:bg-transparent"
+-                  )}
+-                >
+-                  <item.icon className={cn(
+-                    "w-3.5 h-3.5 text-white/60 group-hover:text-white/80 transition-colors",
+-                    item.danger && "text-red-400/60 group-hover:text-red-400"
+-                  )} />
+-                  <div className="flex items-center gap-2 flex-1">
+-                    <span className={cn(
+-                      "text-sm text-white/80 font-extralight text-left flex-1",
+-                      item.danger && "text-red-400/60 group-hover:text-red-400"
+-                    )}>
+-                      {item.label}
+-                    </span>
+-                    {item.comingSoon && (
+-                      <div className="ml-auto">
+-                        <span className="text-[10px] font-medium text-white/80 bg-white/10 px-1.5 py-0.5 rounded">
+-                          soon
+-                        </span>
+-                      </div>
+-                    )}
+-                  </div>
+-                </button>
+-              ))}
+-            </div>
+-          </PopoverContent>
+-        </Popover>
+-      </div>
++            {message.content}
++          </ReactMarkdown>
++        </div>
+ 
+-      <div className="text-sm text-white/80 font-light leading-relaxed">
+-        <ReactMarkdown 
+-          remarkPlugins={[remarkGfm]}
+-          components={{
+-            code({ className, children }) {
+-              return (
+-                <code className={cn(
+-                  "rounded bg-white/5 px-1.5 py-0.5 text-[13px] font-mono",
+-                  className
+-                )}>
+-                  {children}
+-                </code>
+-              )
+-            },
+-            pre({ children }) {
+-              return (
+-                <pre className="rounded-lg bg-white/5 p-4 font-mono text-[13px] leading-relaxed">
+-                  {children}
+-                </pre>
+-              )
+-            }
+-          }}
+-        >
+-          {message.content}
+-        </ReactMarkdown>
++        {/* Context bar for message-specific contexts */}
++        {contexts.length > 0 && (
++          <ContextBar 
++            contexts={contexts}
++            variant="inline"
++            className="mt-3 -mx-2 w-[calc(100%+16px)]"
++          />
++        )}
+       </div>
+     </div>
+   )
+diff --git a/src/components/chat/messages/MessageInput.tsx b/src/components/chat/messages/MessageInput.tsx
+index 0effbbb..3f77884 100644
+--- a/src/components/chat/messages/MessageInput.tsx
++++ b/src/components/chat/messages/MessageInput.tsx
+@@ -6,7 +6,6 @@ import React, { useState, useRef, useEffect, useCallback } from "react"
+ import TextareaAutosize from "react-textarea-autosize"
+ import { toast } from "sonner"
+ 
+-import { Context } from "@/components/chat/context/ContextBar"
+ import { useReferences } from "@/hooks/useReferences"
+ import { useSuggestions } from "@/hooks/useSuggestions"
+ import { MessageProcessor } from "@/lib/ai/messageProcessor"
+@@ -16,6 +15,8 @@ import { FileHandler } from "./FileHandler"
+ import { MenuHandler } from "./MenuHandler"
+ import { ContextHandler } from "./ContextHandler"
+ 
++import type { Context } from "@/types/ai/context"
++
+ interface MessageInputProps {
+   chatId: string
+   className?: string
+@@ -61,7 +62,7 @@ export function MessageInput({ chatId, className, demo = false }: MessageInputPr
+     if (!demo && inputRef.current) {
+       inputRef.current.focus()
+     }
+-  }, []) // Empty dependency array since we only want this on mount
++  }, [demo]) // Empty dependency array since we only want this on mount
+ 
+   const handleSubmit = useCallback(async (e: React.FormEvent) => {
+     e.preventDefault()
+diff --git a/src/components/ui/border-glow-button.tsx b/src/components/ui/border-glow-button.tsx
+index 1994d02..d720985 100644
+--- a/src/components/ui/border-glow-button.tsx
++++ b/src/components/ui/border-glow-button.tsx
+@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils"
+ interface BorderGlowButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+   children: React.ReactNode
+   glowColor?: string
++  borderGlowColor?: string
+   className?: string
+   asChild?: boolean
+ }
+@@ -14,6 +15,7 @@ interface BorderGlowButtonProps extends React.ButtonHTMLAttributes<HTMLButtonEle
+ export function BorderGlowButton({
+   children,
+   glowColor = "rgba(139, 92, 246, 0.25)",
++  borderGlowColor = "rgba(255, 255, 255, 0.2)",
+   className,
+   asChild,
+   ...props
+diff --git a/src/components/ui/follow-cursor.tsx b/src/components/ui/follow-cursor.tsx
+index 985342c..92d5e07 100644
+--- a/src/components/ui/follow-cursor.tsx
++++ b/src/components/ui/follow-cursor.tsx
+@@ -1,22 +1,14 @@
+ "use client"
+ 
+-import { useRef, useEffect } from "react"
+-import { useSpring, animated, to } from "@react-spring/web"
++import { useRef } from "react"
++import { motion, useMotionValue, useSpring, useTransform } from "framer-motion"
+ import { cn } from "@/lib/utils"
+ 
+-const calcX = (y: number, ly: number, containerCenterY: number, rotationFactor: number) =>
+-  -(y - ly - containerCenterY) / rotationFactor
+-
+-const calcY = (x: number, lx: number, containerCenterX: number, rotationFactor: number) =>
+-  (x - lx - containerCenterX) / rotationFactor
+-
+ interface FollowCursorProps {
+   children: React.ReactNode
+   className?: string
+-  animationConfig?: { mass: number; tension: number; friction: number }
++  springConfig?: { stiffness: number; damping: number }
+   hoverScale?: number
+-  offsetX?: number
+-  cardWidth?: string
+   rotationFactor?: number
+   perspective?: string
+   enableTilt?: boolean
+@@ -25,75 +17,68 @@ interface FollowCursorProps {
+ export function FollowCursor({
+   children,
+   className,
+-  animationConfig = { mass: 5, tension: 350, friction: 40 },
++  springConfig = { stiffness: 400, damping: 30 },
+   hoverScale = 1.1,
+-  offsetX = 0,
+-  cardWidth = "200px",
+   rotationFactor = 20,
+   perspective = "300px",
+   enableTilt = true
+ }: FollowCursorProps) {
+-  const domTarget = useRef<HTMLDivElement>(null)
+   const containerRef = useRef<HTMLDivElement>(null)
+ 
+-  const [{ x, y, rotateX, rotateY, scale }, api] = useSpring(() => ({
+-    rotateX: 0,
+-    rotateY: 0,
+-    scale: 1,
+-    x: 0,
+-    y: 0,
+-    config: animationConfig,
+-  }))
++  // Motion values for tracking mouse position
++  const mouseX = useMotionValue(0)
++  const mouseY = useMotionValue(0)
+ 
+-  useEffect(() => {
+-    if (enableTilt) {
+-      const handleMouseMove = (event: MouseEvent) => {
+-        const container = containerRef.current
+-        if (!container) return
++  // Smooth spring animations
++  const rotateX = useSpring(useTransform(mouseY, [-0.5, 0.5], [rotationFactor, -rotationFactor]), springConfig)
++  const rotateY = useSpring(useTransform(mouseX, [-0.5, 0.5], [-rotationFactor, rotationFactor]), springConfig)
++  const scale = useSpring(1, springConfig)
+ 
+-        const rect = container.getBoundingClientRect()
+-        const containerCenterX = rect.left + rect.width / 2
+-        const containerCenterY = rect.top + rect.height / 2
++  const handleMouseMove = (event: React.MouseEvent<HTMLDivElement>) => {
++    if (!enableTilt || !containerRef.current) return
+ 
+-        const px = event.clientX
+-        const py = event.clientY
++    const rect = containerRef.current.getBoundingClientRect()
++    const centerX = rect.left + rect.width / 2
++    const centerY = rect.top + rect.height / 2
+ 
+-        const xPos = px - containerCenterX
+-        const yPos = py - containerCenterY
++    // Calculate normalized position (-0.5 to 0.5)
++    const normalizedX = (event.clientX - centerX) / rect.width
++    const normalizedY = (event.clientY - centerY) / rect.height
+ 
+-        api.start({
+-          x: xPos,
+-          y: yPos,
+-          rotateX: calcX(py, y.get(), containerCenterY, rotationFactor),
+-          rotateY: calcY(px, x.get(), containerCenterX, rotationFactor),
+-          scale: hoverScale,
+-        })
+-      }
++    mouseX.set(normalizedX)
++    mouseY.set(normalizedY)
++  }
+ 
+-      window.addEventListener("mousemove", handleMouseMove)
+-      return () => window.removeEventListener("mousemove", handleMouseMove)
++  const handleMouseEnter = () => {
++    if (enableTilt) {
++      scale.set(hoverScale)
+     }
+-  }, [api, y, x, cardWidth, offsetX, hoverScale, enableTilt, rotationFactor])
++  }
++
++  const handleMouseLeave = () => {
++    mouseX.set(0)
++    mouseY.set(0)
++    scale.set(1)
++  }
+ 
+   return (
+-    <div className={cn("relative", className)} ref={containerRef}>
+-      <animated.div
+-        ref={domTarget}
++    <div 
++      ref={containerRef}
++      className={cn("relative", className)}
++      onMouseMove={handleMouseMove}
++      onMouseEnter={handleMouseEnter}
++      onMouseLeave={handleMouseLeave}
++    >
++      <motion.div
+         style={{
+-          transform: to(
+-            [x, y, rotateX, rotateY, scale],
+-            (x, y, rx, ry, s) => `
+-              perspective(${perspective})
+-              translate3d(${x}px,${y}px,0)
+-              rotateX(${rx}deg)
+-              rotateY(${ry}deg)
+-              scale(${s})
+-            `
+-          ),
++          perspective,
++          rotateX,
++          rotateY,
++          scale,
+         }}
+       >
+         {children}
+-      </animated.div>
++      </motion.div>
+     </div>
+   )
+ } 
+\ No newline at end of file
+diff --git a/src/components/ui/logo-card.tsx b/src/components/ui/logo-card.tsx
+index 8a03967..446633e 100644
+--- a/src/components/ui/logo-card.tsx
++++ b/src/components/ui/logo-card.tsx
+@@ -20,10 +20,10 @@ export function LogoCard({ className }: LogoCardProps) {
+       onMouseLeave={() => setIsHovered(false)}
+     >
+       <FollowCursor
+-        cardWidth="100%"
++        className="w-full"
+         rotationFactor={40}
+         enableTilt={true}
+-        animationConfig={{ mass: 5, tension: 350, friction: 40 }}
++        springConfig={{ stiffness: 350, damping: 40 }}
+       >
+         <AnimatePresence>
+           {isHovered && (
+diff --git a/src/hooks/useSuggestions.ts b/src/hooks/useSuggestions.ts
+index 1b92960..44951c2 100644
+--- a/src/hooks/useSuggestions.ts
++++ b/src/hooks/useSuggestions.ts
+@@ -2,9 +2,9 @@
+ 
+ import { useState, useEffect, useRef } from "react"
+ import { getSupabaseClient } from "@/lib/supabase/client"
+-import { Context } from "@/components/chat/context/ContextBar"
+ import Fuse from 'fuse.js'
+ import { ContextService } from "@/lib/ai/context"
++import type { Context, ContextType } from "@/types/ai/context"
+ 
+ interface SuggestionOptions {
+   type?: string
+diff --git a/src/lib/ai/contextSuggestions.ts b/src/lib/ai/contextSuggestions.ts
+index 83a320e..00092c7 100644
+--- a/src/lib/ai/contextSuggestions.ts
++++ b/src/lib/ai/contextSuggestions.ts
+@@ -1,6 +1,6 @@
+ import { AIService } from './services'
+ import { getSupabaseClient } from '../supabase/client'
+-import { Context } from '@/components/chat/context/ContextBar'
++import type { Context } from "@/types/ai/context"
+ 
+ export interface SuggestionResult {
+   contexts: Context[]
+diff --git a/src/lib/redux/slices/chatSlice.ts b/src/lib/redux/slices/chatSlice.ts
+index 41f2a58..4d2c357 100644
+--- a/src/lib/redux/slices/chatSlice.ts
++++ b/src/lib/redux/slices/chatSlice.ts
+@@ -174,7 +174,7 @@ export const selectRecentChats = createSelector(
+ 
+ export const selectMessageReferences = createSelector(
+   [selectContextState, (state: any, messageId: string) => messageId],
+-  (context, messageId) => context.activeContexts.filter(ctx => ctx.messageId === messageId)
++  (context, messageId) => context.activeContexts.filter(ctx => ctx.id === messageId)
+ )
+ 
+ export const {
+diff --git a/src/types/ai/context.ts b/src/types/ai/context.ts
+index 9473f9c..c124dc5 100644
+--- a/src/types/ai/context.ts
++++ b/src/types/ai/context.ts
+@@ -7,14 +7,7 @@ export interface ContextMetadata {
+   name?: string
+   email?: string
+   full_name?: string
+-  type?: string
+-  size?: string
+-  preview?: string
+-  author?: string
+-  date?: string
+-  source?: string
+-  relevance?: number
+-  confidence?: number
++  subtitle?: string
+   [key: string]: any
+ }
+ 
+@@ -22,10 +15,8 @@ export interface Context {
+   id: string
+   type: ContextType
+   title: string
+-  preview?: string
++  subtitle?: string
+   metadata: ContextMetadata
+-  embedding?: number[]
+-  messageId?: string
+ }
+ 
+ export interface Reference {
