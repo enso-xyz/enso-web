@@ -28,14 +28,10 @@ export function FollowCursor({
   // Motion values for tracking mouse position and movement
   const mouseX = useMotionValue(0)
   const mouseY = useMotionValue(0)
-  const x = useMotionValue(0)
-  const y = useMotionValue(0)
 
   // Smooth spring animations
-  const springX = useSpring(x, springConfig)
-  const springY = useSpring(y, springConfig)
-  const rotateX = useSpring(useTransform(mouseY, [-1, 1], [rotationFactor, -rotationFactor]), springConfig)
-  const rotateY = useSpring(useTransform(mouseX, [-1, 1], [-rotationFactor, rotationFactor]), springConfig)
+  const springX = useSpring(mouseX, springConfig)
+  const springY = useSpring(mouseY, springConfig)
   const scale = useSpring(1, springConfig)
 
   const handleMouseMove = (event: React.MouseEvent<HTMLDivElement>) => {
@@ -50,12 +46,8 @@ export function FollowCursor({
     const distanceY = event.clientY - centerY
 
     // Update position values
-    x.set(distanceX)
-    y.set(distanceY)
-
-    // Update rotation values (normalized -1 to 1)
-    mouseX.set(distanceX / (rect.width / 2))
-    mouseY.set(distanceY / (rect.height / 2))
+    mouseX.set(distanceX)
+    mouseY.set(distanceY)
   }
 
   const handleMouseEnter = () => {
@@ -67,8 +59,6 @@ export function FollowCursor({
   const handleMouseLeave = () => {
     mouseX.set(0)
     mouseY.set(0)
-    x.set(0)
-    y.set(0)
     scale.set(1)
   }
 
@@ -82,12 +72,9 @@ export function FollowCursor({
     >
       <motion.div
         style={{
-          perspective,
-          rotateX,
-          rotateY,
-          scale,
           x: springX,
           y: springY,
+          scale,
           transformStyle: "preserve-3d"
         }}
       >
