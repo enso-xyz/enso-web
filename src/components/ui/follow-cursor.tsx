@@ -25,13 +25,17 @@ export function FollowCursor({
 }: FollowCursorProps) {
   const containerRef = useRef<HTMLDivElement>(null)
 
-  // Motion values for tracking mouse position
+  // Motion values for tracking mouse position and movement
   const mouseX = useMotionValue(0)
   const mouseY = useMotionValue(0)
+  const x = useMotionValue(0)
+  const y = useMotionValue(0)
 
   // Smooth spring animations
-  const rotateX = useSpring(useTransform(mouseY, [-0.5, 0.5], [rotationFactor, -rotationFactor]), springConfig)
-  const rotateY = useSpring(useTransform(mouseX, [-0.5, 0.5], [-rotationFactor, rotationFactor]), springConfig)
+  const springX = useSpring(x, springConfig)
+  const springY = useSpring(y, springConfig)
+  const rotateX = useSpring(useTransform(mouseY, [-1, 1], [rotationFactor, -rotationFactor]), springConfig)
+  const rotateY = useSpring(useTransform(mouseX, [-1, 1], [-rotationFactor, rotationFactor]), springConfig)
   const scale = useSpring(1, springConfig)
 
   const handleMouseMove = (event: React.MouseEvent<HTMLDivElement>) => {
@@ -41,12 +45,17 @@ export function FollowCursor({
     const centerX = rect.left + rect.width / 2
     const centerY = rect.top + rect.height / 2
 
-    // Calculate normalized position (-0.5 to 0.5)
-    const normalizedX = (event.clientX - centerX) / rect.width
-    const normalizedY = (event.clientY - centerY) / rect.height
+    // Calculate distance from center
+    const distanceX = event.clientX - centerX
+    const distanceY = event.clientY - centerY
 
-    mouseX.set(normalizedX)
-    mouseY.set(normalizedY)
+    // Update position values
+    x.set(distanceX)
+    y.set(distanceY)
+
+    // Update rotation values (normalized -1 to 1)
+    mouseX.set(distanceX / (rect.width / 2))
+    mouseY.set(distanceY / (rect.height / 2))
   }
 
   const handleMouseEnter = () => {
@@ -58,6 +67,8 @@ export function FollowCursor({
   const handleMouseLeave = () => {
     mouseX.set(0)
     mouseY.set(0)
+    x.set(0)
+    y.set(0)
     scale.set(1)
   }
 
@@ -75,6 +86,9 @@ export function FollowCursor({
           rotateX,
           rotateY,
           scale,
+          x: springX,
+          y: springY,
+          transformStyle: "preserve-3d"
         }}
       >
         {children}
