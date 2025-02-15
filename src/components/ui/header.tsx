@@ -52,14 +52,21 @@ export function Header({ className }: HeaderProps) {
           </nav>
         </div>
 
-        {/* Auth actions - Hidden on mobile, fades in on lg breakpoint */}
-        <div className="hidden lg:flex items-center gap-4 opacity-0 lg:opacity-100 transition-opacity duration-300">
+        {/* Auth actions - Show on all screen sizes but adjust size for mobile */}
+        <div className="flex items-center gap-2 lg:gap-4">
           <MagneticGlowButton
             onClick={() => router.push("/login")}
             glowColor="rgba(255, 255, 255, 0.1)"
             magneticPull={0.15}
             glowSize={120}
-            className="min-w-[120px] px-6 py-2 text-sm font-light text-white/60 hover:text-white/80 transition-colors"
+            className={cn(
+              "transition-all duration-300",
+              "text-sm font-light text-white/60 hover:text-white/80",
+              // Mobile styles
+              "px-4 py-1.5 min-w-[90px]",
+              // Desktop styles
+              "lg:px-6 lg:py-2 lg:min-w-[120px]"
+            )}
           >
             sign in
           </MagneticGlowButton>
@@ -68,7 +75,14 @@ export function Header({ className }: HeaderProps) {
             glowColor="rgba(139, 92, 246, 0.15)"
             magneticPull={0.15}
             glowSize={120}
-            className="min-w-[120px] px-6 py-2 text-sm font-light text-white/80 hover:text-white/90 transition-colors bg-white/5 hover:bg-white/10"
+            className={cn(
+              "transition-all duration-300",
+              "text-sm font-light text-white/80 hover:text-white/90 bg-white/5 hover:bg-white/10",
+              // Mobile styles
+              "px-4 py-1.5 min-w-[90px]",
+              // Desktop styles
+              "lg:px-6 lg:py-2 lg:min-w-[120px]"
+            )}
           >
             get started
           </MagneticGlowButton>
