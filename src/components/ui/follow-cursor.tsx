@@ -12,6 +12,7 @@ interface FollowCursorProps {
   rotationFactor?: number
   perspective?: string
   enableTilt?: boolean
+  cursorOffset?: { x: number; y: number }
 }
 
 export function FollowCursor({
@@ -21,7 +22,8 @@ export function FollowCursor({
   hoverScale = 1.1,
   rotationFactor = 20,
   perspective = "300px",
-  enableTilt = true
+  enableTilt = true,
+  cursorOffset = { x: 0, y: 12 } // Add default vertical offset
 }: FollowCursorProps) {
   const containerRef = useRef<HTMLDivElement>(null)
 
@@ -44,8 +46,8 @@ export function FollowCursor({
     const relativeY = event.clientY - rect.top
 
     // Calculate the offset needed to center the element under the cursor
-    const offsetX = relativeX - rect.width / 2
-    const offsetY = relativeY - rect.height / 2
+    const offsetX = relativeX - rect.width / 2 + cursorOffset.x
+    const offsetY = relativeY - rect.height / 2 + cursorOffset.y
 
     // Update position values
     mouseX.set(offsetX)
