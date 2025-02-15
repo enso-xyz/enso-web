@@ -25,22 +25,23 @@ export function MobileNavDock({ className }: MobileNavDockProps) {
 
   return (
     <nav className={cn(
-      "md:hidden fixed bottom-0 left-0 right-0 z-50 p-4",
+      "md:hidden fixed bottom-0 left-0 right-0 z-50 px-4 pb-4",
       className
     )}>
       <div className={cn(
-        "flex items-center justify-between gap-2",
-        "p-2 rounded-2xl",
+        "flex items-center justify-center gap-1",
+        "px-1.5 py-1.5 rounded-xl",
         "bg-black/[0.65] backdrop-blur-[12px] backdrop-saturate-[1.8]",
         "border border-white/[0.08]",
-        "shadow-lg shadow-black/25"
+        "shadow-lg shadow-black/25",
+        "max-w-[320px] mx-auto w-full"
       )}>
         {links.map(({ href, label }) => (
           <Link
             key={href}
             href={href}
             className={cn(
-              "px-3 py-2 rounded-xl text-sm font-extralight transition-colors",
+              "px-2.5 py-1.5 rounded-lg text-sm font-extralight transition-colors flex-1 text-center",
               "hover:bg-white/5",
               pathname === href 
                 ? "text-white/90 bg-white/5" 
