@@ -55,13 +55,15 @@ export function Header({ className }: HeaderProps) {
         {/* Auth actions - Show on all screen sizes but adjust size for mobile */}
         <div className="flex items-center gap-2 lg:gap-4">
           <MagneticGlowButton
-            onClick={() => router.push("/login")}
-            glowColor="rgba(255, 255, 255, 0.1)"
+            onClick={() => router.push("/chat")}
+            glowColor="rgba(23, 139, 241, 0.15)"
             magneticPull={0.15}
             glowSize={120}
             className={cn(
               "transition-all duration-300",
-              "text-sm font-light text-white/60 hover:text-white/80",
+              "text-sm font-light text-white/80 hover:text-white/90",
+              "bg-[#178bf1]/5 hover:bg-[#178bf1]/10",
+              "border border-white/[0.08]",
               // Mobile styles
               "px-4 py-1.5 min-w-[90px]",
               // Desktop styles
@@ -69,22 +71,6 @@ export function Header({ className }: HeaderProps) {
             )}
           >
             sign in
-          </MagneticGlowButton>
-          <MagneticGlowButton
-            onClick={() => router.push("/chat")}
-            glowColor="rgba(139, 92, 246, 0.15)"
-            magneticPull={0.15}
-            glowSize={120}
-            className={cn(
-              "transition-all duration-300",
-              "text-sm font-light text-white/80 hover:text-white/90 bg-white/5 hover:bg-white/10",
-              // Mobile styles
-              "px-4 py-1.5 min-w-[90px]",
-              // Desktop styles
-              "lg:px-6 lg:py-2 lg:min-w-[120px]"
-            )}
-          >
-            get started
           </MagneticGlowButton>
         </div>
       </div>
